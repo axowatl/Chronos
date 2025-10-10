@@ -1,17 +1,34 @@
-import { Clamp01 } from "./math_functions.js";
+import { Clamp, Clamp01, Rad2Deg } from "./math_functions.js";
 
 export class Vector2
 {
     // Constructs a new vector with given x, y components.
+    /**
+     * 
+     * @param {number} x 
+     * @param {number} y 
+     */
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
 
     // Set x and y components of an existing Vector2.
+    /**
+     * 
+     * @param {number} newX 
+     * @param {number} newY 
+     */
     Set(newX, newY) { x = newX; y = newY; }
 
     // Linearly interpolates between two vectors.
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @param {number} t 
+     * @returns {Vector2}
+     */
     static Lerp(a, b, t)
     {
         t = Mathf.Clamp01(t);
@@ -22,6 +39,13 @@ export class Vector2
     }
 
     // Linearly interpolates between two vectors without clamping the interpolant
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @param {number} t 
+     * @returns {Vector2}
+     */
     static LerpUnclamped(a, b, t)
     {
         return new Vector2(
@@ -31,6 +55,13 @@ export class Vector2
     }
 
     // Moves a point /current/ towards /target/.
+    /**
+     * 
+     * @param {Vector2} current 
+     * @param {Vector2} target 
+     * @param {number} maxDistanceDelta 
+     * @returns {Vector2}
+     */
     static MoveTowards(current, target, maxDistanceDelta)
     {
         // avoid vector ops because current scripting backends are terrible at inlining
@@ -49,9 +80,19 @@ export class Vector2
     }
 
     // Multiplies two vectors component-wise.
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {Vector2}
+     */
     static Scale(a, b) { return new Vector2(a.x * b.x, a.y * b.y); }
 
     // Multiplies every component of this vector by the same component of /scale/.
+    /**
+     * 
+     * @param {Vector2} scale 
+     */
     Scale(scale) { x *= scale.x; y *= scale.y; }
 
     // Makes this vector have a ::ref::magnitude of 1.
@@ -77,124 +118,172 @@ export class Vector2
         retrun `(${this.x}, ${this.y})`;
     }
 
-    public bool Equals(Vector2 other)
+    /**
+     * 
+     * @param {Vector2} other 
+     * @returns {boolean}
+     */
+    Equals(other)
     {
         return x == other.x && y == other.y;
     }
 
-    public static Vector2 Reflect(Vector2 inDirection, Vector2 inNormal)
+    /**
+     * 
+     * @param {Vector2} inDirection 
+     * @param {Vector2} inNormal 
+     * @returns {Vector2}
+     */
+    static Reflect(inDirection, inNormal)
     {
-        float factor = -2F * Dot(inNormal, inDirection);
+        const factor = -2 * Vector2.Dot(inNormal, inDirection);
         return new Vector2(factor * inNormal.x + inDirection.x, factor * inNormal.y + inDirection.y);
     }
 
-    public static Vector2 Perpendicular(Vector2 inDirection)
+    /**
+     * 
+     * @param {Vector2} inDirection 
+     * @returns {Vector2}
+     */
+    static Perpendicular(inDirection)
     {
         return new Vector2(-inDirection.y, inDirection.x);
     }
 
     // Dot Product of two vectors.
-    public static float Dot(Vector2 lhs, Vector2 rhs) { return lhs.x * rhs.x + lhs.y * rhs.y; }
+    /**
+     * 
+     * @param {Vector2} lhs 
+     * @param {Vector2} rhs 
+     * @returns {number}
+     */
+    static Dot(lhs, rhs) { return lhs.x * rhs.x + lhs.y * rhs.y; }
 
     // Returns the length of this vector (RO).
-    public float magnitude { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return (float)Math.Sqrt(x * x + y * y); } }
+    get magnitude() { return Math.sqrt(x * x + y * y); }
     // Returns the squared length of this vector (RO).
-    public float sqrMagnitude { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return x * x + y * y; } }
+    get sqrMagnitude() { return x * x + y * y; }
 
     // Returns the angle in degrees between /from/ and /to/.
-    public static float Angle(Vector2 from, Vector2 to)
+    /**
+     * 
+     * @param {Vector2} from 
+     * @param {Vector2} to 
+     * @returns {number}
+     */
+    static Angle(from, to)
     {
         // sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
-        float denominator = (float)Math.Sqrt(from.sqrMagnitude * to.sqrMagnitude);
+        const denominator = Math.sqrt(from.sqrMagnitude * to.sqrMagnitude);
         if (denominator < kEpsilonNormalSqrt)
-            return 0F;
+            return 0;
 
-        float dot = Mathf.Clamp(Dot(from, to) / denominator, -1F, 1F);
-        return (float)Math.Acos(dot) * Mathf.Rad2Deg;
+        const dot = Clamp(Dot(from, to) / denominator, -1, 1);
+        return Math.acos(dot) * Rad2Deg;
     }
 
     // Returns the signed angle in degrees between /from/ and /to/. Always returns the smallest possible angle
-    public static float SignedAngle(Vector2 from, Vector2 to)
+    /**
+     * 
+     * @param {Vector2} from 
+     * @param {Vector2} to 
+     * @returns {number}
+     */
+    static SignedAngle(from, to)
     {
-        float unsigned_angle = Angle(from, to);
-        float sign = Mathf.Sign(from.x * to.y - from.y * to.x);
+        const unsigned_angle = Vector2.Angle(from, to);
+        const sign = Math.sign(from.x * to.y - from.y * to.x);
         return unsigned_angle * sign;
     }
 
     // Returns the distance between /a/ and /b/.
-    public static float Distance(Vector2 a, Vector2 b)
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {number}
+     */
+    static Distance(a, b)
     {
-        float diff_x = a.x - b.x;
-        float diff_y = a.y - b.y;
-        return (float)Math.Sqrt(diff_x * diff_x + diff_y * diff_y);
+        const diff_x = a.x - b.x;
+        const diff_y = a.y - b.y;
+        return Math.sqrt(diff_x * diff_x + diff_y * diff_y);
     }
 
     // Returns a copy of /vector/ with its magnitude clamped to /maxLength/.
-    public static Vector2 ClampMagnitude(Vector2 vector, float maxLength)
+    /**
+     * 
+     * @param {Vector2} vector 
+     * @param {number} maxLength 
+     * @returns {Vector2}
+     */
+    static ClampMagnitude(vector, maxLength)
     {
-        float sqrMagnitude = vector.sqrMagnitude;
+        const sqrMagnitude = vector.sqrMagnitude;
         if (sqrMagnitude > maxLength * maxLength)
         {
-            float mag = (float)Math.Sqrt(sqrMagnitude);
+            const mag = Math.sqrt(sqrMagnitude);
 
             //these intermediate variables force the intermediate result to be
             //of float precision. without this, the intermediate result can be of higher
             //precision, which changes behavior.
-            float normalized_x = vector.x / mag;
-            float normalized_y = vector.y / mag;
+            const normalized_x = vector.x / mag;
+            const normalized_y = vector.y / mag;
             return new Vector2(normalized_x * maxLength,
                 normalized_y * maxLength);
         }
         return vector;
     }
 
-    // [Obsolete("Use Vector2.sqrMagnitude")]
-    public static float SqrMagnitude(Vector2 a) { return a.x * a.x + a.y * a.y; }
-    // [Obsolete("Use Vector2.sqrMagnitude")]
-    public float SqrMagnitude() { return x * x + y * y; }
-
     // Returns a vector that is made from the smallest components of two vectors.
-    public static Vector2 Min(Vector2 lhs, Vector2 rhs) { return new Vector2(Mathf.Min(lhs.x, rhs.x), Mathf.Min(lhs.y, rhs.y)); }
+    /**
+     * 
+     * @param {Vector2} lhs
+     * @param {Vector2} rhs
+     * @returns {Vector2}
+     */
+    static Min(lhs, rhs) { return new Vector2(Math.min(lhs.x, rhs.x), Math.min(lhs.y, rhs.y)); }
 
     // Returns a vector that is made from the largest components of two vectors.
-    public static Vector2 Max(Vector2 lhs, Vector2 rhs) { return new Vector2(Mathf.Max(lhs.x, rhs.x), Mathf.Max(lhs.y, rhs.y)); }
+    /**
+     * 
+     * @param {Vector2} lhs 
+     * @param {Vector2} rhs 
+     * @returns {Vector2}
+     */
+    static Max(lhs, rhs) { return new Vector2(Math.max(lhs.x, rhs.x), Math.max(lhs.y, rhs.y)); }
 
-    [uei.ExcludeFromDocs]
-    public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, float maxSpeed)
-    {
-        float deltaTime = Time.deltaTime;
-        return SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
-    }
-
-    [uei.ExcludeFromDocs]
-    public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime)
-    {
-        float deltaTime = Time.deltaTime;
-        float maxSpeed = Mathf.Infinity;
-        return SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
-    }
-
-    public static Vector2 SmoothDamp(Vector2 current, Vector2 target, ref Vector2 currentVelocity, float smoothTime, [uei.DefaultValue("Mathf.Infinity")] float maxSpeed, [uei.DefaultValue("Time.deltaTime")] float deltaTime)
+    /**
+     * 
+     * @param {Vector2} current 
+     * @param {Vector2} target 
+     * @param {Vector2} currentVelocity 
+     * @param {number} smoothTime 
+     * @param {number} maxSpeed 
+     * @param {number} deltaTime 
+     * @returns {Vector2}
+     */
+    static SmoothDamp(current, target, currentVelocity, smoothTime, maxSpeed = Infinity, deltaTime = 0.016)
     {
         // Based on Game Programming Gems 4 Chapter 1.10
-        smoothTime = Mathf.Max(0.0001F, smoothTime);
-        float omega = 2F / smoothTime;
+        smoothTime = Math.max(0.0001, smoothTime);
+        const omega = 2 / smoothTime;
 
-        float x = omega * deltaTime;
-        float exp = 1F / (1F + x + 0.48F * x * x + 0.235F * x * x * x);
+        const x = omega * deltaTime;
+        const exp = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
 
-        float change_x = current.x - target.x;
-        float change_y = current.y - target.y;
-        Vector2 originalTo = target;
+        const change_x = current.x - target.x;
+        const change_y = current.y - target.y;
+        const originalTo = target;
 
         // Clamp maximum speed
-        float maxChange = maxSpeed * smoothTime;
+        const maxChange = maxSpeed * smoothTime;
 
-        float maxChangeSq = maxChange * maxChange;
-        float sqDist = change_x * change_x + change_y * change_y;
+        const maxChangeSq = maxChange * maxChange;
+        const sqDist = change_x * change_x + change_y * change_y;
         if (sqDist > maxChangeSq)
         {
-            var mag = (float)Math.Sqrt(sqDist);
+            var mag = Math.sqrt(sqDist);
             change_x = change_x / mag * maxChange;
             change_y = change_y / mag * maxChange;
         }
@@ -202,20 +291,20 @@ export class Vector2
         target.x = current.x - change_x;
         target.y = current.y - change_y;
 
-        float temp_x = (currentVelocity.x + omega * change_x) * deltaTime;
-        float temp_y = (currentVelocity.y + omega * change_y) * deltaTime;
+        const temp_x = (currentVelocity.x + omega * change_x) * deltaTime;
+        const temp_y = (currentVelocity.y + omega * change_y) * deltaTime;
 
         currentVelocity.x = (currentVelocity.x - omega * temp_x) * exp;
         currentVelocity.y = (currentVelocity.y - omega * temp_y) * exp;
 
-        float output_x = target.x + (change_x + temp_x) * exp;
-        float output_y = target.y + (change_y + temp_y) * exp;
+        let output_x = target.x + (change_x + temp_x) * exp;
+        let output_y = target.y + (change_y + temp_y) * exp;
 
         // Prevent overshooting
-        float origMinusCurrent_x = originalTo.x - current.x;
-        float origMinusCurrent_y = originalTo.y - current.y;
-        float outMinusOrig_x = output_x - originalTo.x;
-        float outMinusOrig_y = output_y - originalTo.y;
+        const origMinusCurrent_x = originalTo.x - current.x;
+        const origMinusCurrent_y = originalTo.y - current.y;
+        const outMinusOrig_x = output_x - originalTo.x;
+        const outMinusOrig_y = output_y - originalTo.y;
 
         if (origMinusCurrent_x * outMinusOrig_x + origMinusCurrent_y * outMinusOrig_y > 0)
         {
@@ -229,78 +318,97 @@ export class Vector2
     }
 
     // Adds two vectors.
-    public static Vector2 operator+(Vector2 a, Vector2 b) { return new Vector2(a.x + b.x, a.y + b.y); }
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {Vector2}
+     */
+    static add(a, b) { return new Vector2(a.x + b.x, a.y + b.y); }
     // Subtracts one vector from another.
-    public static Vector2 operator-(Vector2 a, Vector2 b) { return new Vector2(a.x - b.x, a.y - b.y); }
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2} b 
+     * @returns {Vector2}
+     */
+    static subtract(a, b) { return new Vector2(a.x - b.x, a.y - b.y); }
     // Multiplies one vector by another.
-    public static Vector2 operator*(Vector2 a, Vector2 b) { return new Vector2(a.x * b.x, a.y * b.y); }
+    /**
+     * 
+     * @param {Vector2 | number} a 
+     * @param {Vector2 | number} b 
+     * @returns {Vector2}
+     */
+    static multiply(a, b) {
+        const _aIsVec = a instanceof Vector2;
+        const _bIsVec = b instanceof Vector2;
+        if (_aIsVec && _bIsVec)
+            return new Vector2(a.x * b.x, a.y * b.y);
+        else if (_aIsVec)
+            return new Vector2(a.x * b, a.y * b);
+        else
+            return new Vector2(a * b.x, a * b.y);
+    }
     // Divides one vector over another.
-    public static Vector2 operator/(Vector2 a, Vector2 b) { return new Vector2(a.x / b.x, a.y / b.y); }
+    /**
+     * 
+     * @param {Vector2} a 
+     * @param {Vector2 | number} b 
+     * @returns {Vector2}
+     */
+    static divide(a, b) {
+        if (b instanceof Vector2)
+            return new Vector2(a.x / b.x, a.y / b.y);
+        else
+            return new Vector2(a.x / b, a.y / b);
+    }
     // Negates a vector.
-    public static Vector2 operator-(Vector2 a) { return new Vector2(-a.x, -a.y); }
-    // Multiplies a vector by a number.
-    public static Vector2 operator*(Vector2 a, float d) { return new Vector2(a.x * d, a.y * d); }
-    // Multiplies a vector by a number.
-    public static Vector2 operator*(float d, Vector2 a) { return new Vector2(a.x * d, a.y * d); }
-    // Divides a vector by a number.
-    public static Vector2 operator/(Vector2 a, float d) { return new Vector2(a.x / d, a.y / d); }
+    /**
+     * 
+     * @param {Vector2} a 
+     * @returns {Vector2}
+     */
+    static negate(a) { return new Vector2(-a.x, -a.y); }
     // Returns true if the vectors are equal.
-    public static bool operator==(Vector2 lhs, Vector2 rhs)
+    /**
+     * 
+     * @param {Vector2} lhs 
+     * @param {Vector2} rhs 
+     * @returns {boolean}
+     */
+    static equals(lhs, rhs)
     {
         // Returns false in the presence of NaN values.
-        float diff_x = lhs.x - rhs.x;
-        float diff_y = lhs.y - rhs.y;
+        const diff_x = lhs.x - rhs.x;
+        const diff_y = lhs.y - rhs.y;
         return (diff_x * diff_x + diff_y * diff_y) < kEpsilon * kEpsilon;
     }
 
     // Returns true if vectors are different.
-    public static bool operator!=(Vector2 lhs, Vector2 rhs)
+    /**
+     * 
+     * @param {Vector2} lhs 
+     * @param {Vector2} rhs 
+     * @returns {boolean}
+     */
+    static notEquals(lhs, rhs)
     {
         // Returns true in the presence of NaN values.
-        return !(lhs == rhs);
+        return !(Vector2.equals(lhs, rhs));
     }
 
-    // Converts a [[Vector3]] to a Vector2.
-    public static implicit operator Vector2(Vector3 v)
-    {
-        return new Vector2(v.x, v.y);
-    }
-
-    // Converts a Vector2 to a [[Vector3]].
-    public static implicit operator Vector3(Vector2 v)
-    {
-        return new Vector3(v.x, v.y, 0);
-    }
-
-    static readonly Vector2 zeroVector = new Vector2(0F, 0F);
-    static readonly Vector2 oneVector = new Vector2(1F, 1F);
-    static readonly Vector2 upVector = new Vector2(0F, 1F);
-    static readonly Vector2 downVector = new Vector2(0F, -1F);
-    static readonly Vector2 leftVector = new Vector2(-1F, 0F);
-    static readonly Vector2 rightVector = new Vector2(1F, 0F);
-    static readonly Vector2 positiveInfinityVector = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
-    static readonly Vector2 negativeInfinityVector = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
-
-
-    // Shorthand for writing @@Vector2(0, 0)@@
-    public static Vector2 zero { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return zeroVector; } }
-    // Shorthand for writing @@Vector2(1, 1)@@
-    public static Vector2 one { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return oneVector; }   }
-    // Shorthand for writing @@Vector2(0, 1)@@
-    public static Vector2 up { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return upVector; } }
-    // Shorthand for writing @@Vector2(0, -1)@@
-    public static Vector2 down { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return downVector; } }
-    // Shorthand for writing @@Vector2(-1, 0)@@
-    public static Vector2 left { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return leftVector; } }
-    // Shorthand for writing @@Vector2(1, 0)@@
-    public static Vector2 right { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return rightVector; } }
-    // Shorthand for writing @@Vector2(float.PositiveInfinity, float.PositiveInfinity)@@
-    public static Vector2 positiveInfinity { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return positiveInfinityVector; } }
-    // Shorthand for writing @@Vector2(float.NegativeInfinity, float.NegativeInfinity)@@
-    public static Vector2 negativeInfinity { [MethodImpl(MethodImplOptionsEx.AggressiveInlining)] get { return negativeInfinityVector; } }
+    static get zero() { new Vector2(0, 0); }
+    static get one() { new Vector2(1, 1); }
+    static get up() { new Vector2(0, 1); }
+    static get down() { new Vector2(0, -1); }
+    static get left() { new Vector2(-1, 0); }
+    static get right() { new Vector2(1, 0); }
+    static get positiveInfinity() { new Vector2(Infinity, Infinity); }
+    static get negativeInfinity() { new Vector2(-Infinity, -Infinity); }
 
     // *Undocumented*
-    public const float kEpsilon = 0.00001F;
+    kEpsilon = 0.00001;
     // *Undocumented*
-    public const float kEpsilonNormalSqrt = 1e-15f;
+    kEpsilonNormalSqrt = 1e-15;
 }
