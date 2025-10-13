@@ -58,114 +58,146 @@ export class ShapeCastInput
     }
 }
 
-/// Low level ray cast or shape-cast output data. Returns a zero fraction and normal in the case of initial overlap.
-typedef struct b2CastOutput
+/**
+ * Low level ray cast or shape-cast output data. Returns a zero fraction and normal in the case of initial overlap.
+ */ 
+export class b2CastOutput
 {
-	/// The surface normal at the hit point
-	b2Vec2 normal;
+	/**
+	 * 
+	 * @param {Vec2} normal The surface normal at the hit point
+	 * @param {Vec2} point The surface hit point
+	 * @param {number} fraction The fraction of the input translation at collision
+	 * @param {number} iterations The number of iterations used
+	 * @param {boolean} hit Did the cast hit?
+	 */
+	constructor(normal, point, fraction, iterations, hit) {
+		this.normal = normal;
+		this.point = point;
+		this.fraction = fraction;
+		this.iterations = iterations;
+		this.hit = hit;
+	}
+}
 
-	/// The surface hit point
-	b2Vec2 point;
-
-	/// The fraction of the input translation at collision
-	float fraction;
-
-	/// The number of iterations used
-	int iterations;
-
-	/// Did the cast hit?
-	bool hit;
-} b2CastOutput;
-
-/// This holds the mass data computed for a shape.
-typedef struct b2MassData
+/**
+ * This holds the mass data computed for a shape.
+ */
+export class b2MassData
 {
-	/// The mass of the shape, usually in kilograms.
-	float mass;
+	/**
+	 * 
+	 * @param {number} mass The mass of the shape, usually in kilograms.
+	 * @param {Vec2} center The position of the shape's centroid relative to the shape's origin.
+	 * @param {number} rotationalInertia The rotational inertia of the shape about the shape center.
+	 */
+	constructor(mass, center, rotationalInertia) {
+		this.mass = mass;
+		this.center = center;
+		this.rotationalInertia = rotationalInertia;
+	}
+}
 
-	/// The position of the shape's centroid relative to the shape's origin.
-	b2Vec2 center;
-
-	/// The rotational inertia of the shape about the shape center.
-	float rotationalInertia;
-} b2MassData;
-
-/// A solid circle
-typedef struct b2Circle
+/**
+ * A solid circle
+ */
+export class b2Circle
 {
-	/// The local center
-	b2Vec2 center;
+	/**
+	 * 
+	 * @param {Vec2} center The local center
+	 * @param {number} radius The radius
+	 */
+	constructor(center, radius) {
+		this.center = center;
+		this.radius = radius;
+	}
+}
 
-	/// The radius
-	float radius;
-} b2Circle;
-
-/// A solid capsule can be viewed as two semicircles connected
-/// by a rectangle.
-typedef struct b2Capsule
+/**
+ * A solid capsule can be viewed as two semicircles connected
+ * by a rectangle.
+ */
+export class b2Capsule
 {
-	/// Local center of the first semicircle
-	b2Vec2 center1;
+	/**
+	 * 
+	 * @param {Vec2} center1 Local center of the first semicircle
+	 * @param {Vec2} center2 Local center of the second semicircle
+	 * @param {number} radius The radius of the semicircles
+	 */
+	constructor(center1, center2, radius) {
+		this.center1 = center1;
+		this.center2 = center2;
+		this.radius = radius;
+	}
+}
 
-	/// Local center of the second semicircle
-	b2Vec2 center2;
-
-	/// The radius of the semicircles
-	float radius;
-} b2Capsule;
-
-/// A solid convex polygon. It is assumed that the interior of the polygon is to
-/// the left of each edge.
-/// Polygons have a maximum number of vertices equal to B2_MAX_POLYGON_VERTICES.
-/// In most cases you should not need many vertices for a convex polygon.
-/// @warning DO NOT fill this out manually, instead use a helper function like
-/// b2MakePolygon or b2MakeBox.
-typedef struct b2Polygon
+/**
+ * A solid convex polygon. It is assumed that the interior of the polygon is to
+ * the left of each edge.
+ * Polygons have a maximum number of vertices equal to B2_MAX_POLYGON_VERTICES.
+ * In most cases you should not need many vertices for a convex polygon.
+ * @warning DO NOT fill this out manually, instead use a helper function like MakePolygon or MakeBox.
+ */
+export class b2Polygon
 {
-	/// The polygon vertices
-	b2Vec2 vertices[B2_MAX_POLYGON_VERTICES];
+	/**
+	 * 
+	 * @param {Vec2} vertices The polygon vertices
+	 * @param {Vec2} normals The outward normal vectors of the polygon sides
+	 * @param {Vec2} centroid The centroid of the polygon
+	 * @param {number} radius The external radius for rounded polygons
+	 * @param {number} count The number of polygon vertices
+	 */
+	constructor(vertices, normals, centroid, radius, count) {
+		this.vertices = vertices;
+		this.normals = normals;
+		this.centroid = centroid;
+		this.radius = radius;
+		this.count = count;
+	}
+}
 
-	/// The outward normal vectors of the polygon sides
-	b2Vec2 normals[B2_MAX_POLYGON_VERTICES];
-
-	/// The centroid of the polygon
-	b2Vec2 centroid;
-
-	/// The external radius for rounded polygons
-	float radius;
-
-	/// The number of polygon vertices
-	int count;
-} b2Polygon;
-
-/// A line segment with two-sided collision.
-typedef struct b2Segment
+/**
+ * A line segment with two-sided collision.
+ */
+export class b2Segment
 {
-	/// The first point
-	b2Vec2 point1;
+	/**
+	 * 
+	 * @param {Vec2} point1 The first point
+	 * @param {Vec2} point2 The second point
+	 */
+	constructor(point1, point2) {
+		this.point1 = point1;
+		this.point2 = point2;
+	}
+}
 
-	/// The second point
-	b2Vec2 point2;
-} b2Segment;
-
-/// A line segment with one-sided collision. Only collides on the right side.
-/// Several of these are generated for a chain shape.
-/// ghost1 -> point1 -> point2 -> ghost2
-typedef struct b2ChainSegment
+/**
+ * A line segment with one-sided collision. Only collides on the right side.
+ * Several of these are generated for a chain shape.
+ * ghost1 -> point1 -> point2 -> ghost2
+ */
+export class b2ChainSegment
 {
-	/// The tail ghost vertex
-	b2Vec2 ghost1;
+	/**
+	 * 
+	 * @param {Vec2} ghost1 The tail ghost vertex
+	 * @param {b2Segment} segment The line segment
+	 * @param {Vec2} ghost2 The head ghost vertex
+	 * @param {number} chainId The owning chain shape index (internal usage only)
+	 */
+	constructor(ghost1, segment, ghost2, chainId) {
+		this.ghost1 = ghost1;
+		this.segment = segment;
+		this.ghost2 = ghost2;
+		this.chainId = chainId;
+	}
+}
 
-	/// The line segment
-	b2Segment segment;
-
-	/// The head ghost vertex
-	b2Vec2 ghost2;
-
-	/// The owning chain shape index (internal usage only)
-	int chainId;
-} b2ChainSegment;
-
+/*
 /// Validate ray cast input data (NaN, etc)
 B2_API bool b2IsValidRay( const b2RayCastInput* input );
 
@@ -268,18 +300,26 @@ B2_API b2CastOutput b2ShapeCastSegment( const b2Segment* shape, const b2ShapeCas
 
 /// Shape cast versus a convex polygon.
 B2_API b2CastOutput b2ShapeCastPolygon( const b2Polygon* shape, const b2ShapeCastInput* input );
+*/
 
-/// A convex hull. Used to create convex polygons.
-/// @warning Do not modify these values directly, instead use b2ComputeHull()
-typedef struct b2Hull
+/**
+ * A convex hull. Used to create convex polygons.
+ * @warning Do not modify these values directly, instead use ComputeHull()
+ */
+export class b2Hull
 {
-	/// The final points of the hull
-	b2Vec2 points[B2_MAX_POLYGON_VERTICES];
+	/**
+	 * 
+	 * @param {Vec2} points The final points of the hull
+	 * @param {number} count The number of points
+	 */
+	constructor(points, count) {
+		this.points = points;
+		this.count = count;
+	}
+}
 
-	/// The number of points
-	int count;
-} b2Hull;
-
+/*
 /// Compute the convex hull of a set of points. Returns an empty hull if it fails.
 /// Some failure cases:
 /// - all points very close together
@@ -295,8 +335,7 @@ B2_API b2Hull b2ComputeHull( const b2Vec2* points, int count );
 /// - collinear points
 /// This is expensive and should not be called at runtime.
 B2_API bool b2ValidateHull( const b2Hull* hull );
-
-/**@}*/
+*/
 
 /**
  * @defgroup distance Distance
@@ -327,8 +366,10 @@ typedef struct b2SegmentDistanceResult
 	float distanceSquared;
 } b2SegmentDistanceResult;
 
+/*
 /// Compute the distance between two line segments, clamping at the end points if needed.
 B2_API b2SegmentDistanceResult b2SegmentDistance( b2Vec2 p1, b2Vec2 q1, b2Vec2 p2, b2Vec2 q2 );
+*/
 
 /// Used to warm start the GJK simplex. If you call this function multiple times with nearby
 /// transforms this might improve performance. Otherwise you can zero initialize this.
@@ -396,11 +437,13 @@ typedef struct b2Simplex
 	int count;					///< number of valid vertices
 } b2Simplex;
 
+/*
 /// Compute the closest points between two shapes represented as point clouds.
 /// b2SimplexCache cache is input/output. On the first call set b2SimplexCache.count to zero.
 /// The underlying GJK algorithm may be debugged by passing in debug simplexes and capacity. You may pass in NULL and 0 for these.
 B2_API b2DistanceOutput b2ShapeDistance( const b2DistanceInput* input, b2SimplexCache* cache, b2Simplex* simplexes,
 										 int simplexCapacity );
+*/
 
 /// Input parameters for b2ShapeCast
 typedef struct b2ShapeCastPairInput
@@ -414,6 +457,7 @@ typedef struct b2ShapeCastPairInput
 	bool canEncroach;		///< Allows shapes with a radius to move slightly closer if already touching
 } b2ShapeCastPairInput;
 
+/*
 /// Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.
 /// Initially touching shapes are treated as a miss.
 B2_API b2CastOutput b2ShapeCast( const b2ShapeCastPairInput* input );
@@ -423,6 +467,7 @@ B2_API b2ShapeProxy b2MakeProxy( const b2Vec2* points, int count, float radius )
 
 /// Make a proxy with a transform. This is a deep copy of the points.
 B2_API b2ShapeProxy b2MakeOffsetProxy( const b2Vec2* points, int count, float radius, b2Vec2 position, b2Rot rotation );
+*/
 
 /// This describes the motion of a body/shape for TOI computation. Shapes are defined with respect to the body origin,
 /// which may not coincide with the center of mass. However, to support dynamics we must interpolate the center of mass
@@ -436,8 +481,10 @@ typedef struct b2Sweep
 	b2Rot q2;			///< Ending world rotation
 } b2Sweep;
 
+/*
 /// Evaluate the transform sweep at a specific time.
 B2_API b2Transform b2GetSweepTransform( const b2Sweep* sweep, float time );
+*/
 
 /// Time of impact input
 typedef struct b2TOIInput
@@ -475,11 +522,13 @@ typedef struct b2TOIOutput
 	float fraction;
 } b2TOIOutput;
 
+/*
 /// Compute the upper bound on time before two shapes penetrate. Time is represented as
 /// a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,
 /// non-tunneling collisions. If you change the time interval, you should call this function
 /// again.
 B2_API b2TOIOutput b2TimeOfImpact( const b2TOIInput* input );
+*/
 
 /**@}*/
 
@@ -550,6 +599,7 @@ typedef struct b2Manifold
 
 } b2Manifold;
 
+/*
 /// Compute the contact manifold between two circles
 B2_API b2Manifold b2CollideCircles( const b2Circle* circleA, b2Transform xfA, const b2Circle* circleB, b2Transform xfB );
 
@@ -594,7 +644,7 @@ B2_API b2Manifold b2CollideChainSegmentAndCapsule( const b2ChainSegment* segment
 /// Compute the contact manifold between a chain segment and a rounded polygon
 B2_API b2Manifold b2CollideChainSegmentAndPolygon( const b2ChainSegment* segmentA, b2Transform xfA, const b2Polygon* polygonB,
 												   b2Transform xfB, b2SimplexCache* cache );
-
+*/
 /**@}*/
 
 /**
@@ -663,6 +713,7 @@ typedef struct b2TreeStats
 	int leafVisits;
 } b2TreeStats;
 
+/*
 /// Constructing the tree initializes the node pool.
 B2_API b2DynamicTree b2DynamicTree_Create( void );
 
@@ -775,7 +826,7 @@ B2_API void b2DynamicTree_Validate( const b2DynamicTree* tree );
 
 /// Validate this tree has no enlarged AABBs. For testing.
 B2_API void b2DynamicTree_ValidateNoEnlarged( const b2DynamicTree* tree );
-
+*/
 /**@}*/
 
 /**
@@ -825,6 +876,7 @@ typedef struct b2PlaneSolverResult
 	int iterationCount;
 } b2PlaneSolverResult;
 
+/*
 /// Solves the position of a mover that satisfies the given collision planes.
 /// @param targetDelta the desired movement from the position used to generate the collision planes
 /// @param planes the collision planes
@@ -834,3 +886,4 @@ B2_API b2PlaneSolverResult b2SolvePlanes( b2Vec2 targetDelta, b2CollisionPlane* 
 /// Clips the velocity against the given collision planes. Planes with zero push or clipVelocity
 /// set to false are skipped.
 B2_API b2Vec2 b2ClipVector( b2Vec2 vector, const b2CollisionPlane* planes, int count );
+*/
