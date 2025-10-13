@@ -1,4 +1,4 @@
-import { Vec2 } from "./math_functions";
+import { Rot, Vec2 } from "./math_functions";
 
 /**
  * Low level ray cast input data
@@ -337,105 +337,154 @@ B2_API b2Hull b2ComputeHull( const b2Vec2* points, int count );
 B2_API bool b2ValidateHull( const b2Hull* hull );
 */
 
+//#region Distance
+/*
+Functions for computing the distance between shapes.
+
+These are advanced functions you can use to perform distance calculations. There
+are functions for computing the closest points between shapes, doing linear shape casts,
+and doing rotational shape casts. The latter is called time of impact (TOI).
+*/
+
 /**
- * @defgroup distance Distance
- * Functions for computing the distance between shapes.
- *
- * These are advanced functions you can use to perform distance calculations. There
- * are functions for computing the closest points between shapes, doing linear shape casts,
- * and doing rotational shape casts. The latter is called time of impact (TOI).
- * @{
+ * Result of computing the distance between two line segments
  */
-
-/// Result of computing the distance between two line segments
-typedef struct b2SegmentDistanceResult
+export class b2SegmentDistanceResult
 {
-	/// The closest point on the first segment
-	b2Vec2 closest1;
-
-	/// The closest point on the second segment
-	b2Vec2 closest2;
-
-	/// The barycentric coordinate on the first segment
-	float fraction1;
-
-	/// The barycentric coordinate on the second segment
-	float fraction2;
-
-	/// The squared distance between the closest points
-	float distanceSquared;
-} b2SegmentDistanceResult;
+	/**
+	 * 
+	 * @param {Vec2} closest1 The closest point on the first segment
+	 * @param {Vec2} closest2 The closest point on the second segment
+	 * @param {number} fraction1 The barycentric coordinate on the first segment
+	 * @param {number} fraction2 The barycentric coordinate on the second segment
+	 * @param {number} distanceSquared The squared distance between the closest points
+	 */
+	constructor(closest1, closest2, fraction1, fraction2, distanceSquared) {
+		this.closest1 = closest1;
+		this.closest2 = closest2;
+		this.fraction1 = fraction1;
+		this.fraction2 = fraction2;
+		this.distanceSquared = distanceSquared;
+	}
+}
 
 /*
 /// Compute the distance between two line segments, clamping at the end points if needed.
 B2_API b2SegmentDistanceResult b2SegmentDistance( b2Vec2 p1, b2Vec2 q1, b2Vec2 p2, b2Vec2 q2 );
 */
 
-/// Used to warm start the GJK simplex. If you call this function multiple times with nearby
-/// transforms this might improve performance. Otherwise you can zero initialize this.
-/// The distance cache must be initialized to zero on the first call.
-/// Users should generally just zero initialize this structure for each call.
-typedef struct b2SimplexCache
+/**
+ * Used to warm start the GJK simplex. If you call this function multiple times with nearby
+ * transforms this might improve performance. Otherwise you can zero initialize this.
+ * The distance cache must be initialized to zero on the first call.
+ * Users should generally just zero initialize this structure for each call.
+ */
+export class b2SimplexCache
 {
-	/// The number of stored simplex points
-	uint16_t count;
+	/**
+	 * 
+	 * @param {number} count The number of stored simplex points
+	 * @param {number[]} indexA [3] The cached simplex indices on shape A
+	 * @param {number[]} indexB [3] The cached simplex indices on shape B
+	 */
+	constructor(count, indexA, indexB) {
+		this.count = count;
+		this.indexA = indexA;
+		this.indexB = indexB;
+	}
+}
 
-	/// The cached simplex indices on shape A
-	uint8_t indexA[3];
+// static const b2SimplexCache b2_emptySimplexCache = B2_ZERO_INIT;
 
-	/// The cached simplex indices on shape B
-	uint8_t indexB[3];
-} b2SimplexCache;
-
-static const b2SimplexCache b2_emptySimplexCache = B2_ZERO_INIT;
-
-/// Input for b2ShapeDistance
-typedef struct b2DistanceInput
+/**
+ * Input for b2ShapeDistance
+ */
+export class b2DistanceInput
 {
-	/// The proxy for shape A
-	b2ShapeProxy proxyA;
+	/**
+	 * 
+	 * @param {b2ShapeProxy} proxyA The proxy for shape A
+	 * @param {b2ShapeProxy} proxyB The proxy for shape B
+	 * @param {b2Transform} transformA The world transform for shape A
+	 * @param {b2Transform} transformB The world transform for shape B
+	 * @param {boolean} useRadii Should the proxy radius be considered?
+	 */
+	constructor(proxyA, proxyB, transformA, transformB, useRadii) {
+		this.proxyA = proxyA;
+		this.proxyB = proxyB;
+		this.transformA = transformA;
+		this.transformB = transformB;
+		this.useRadii = useRadii;
+	}
+}
 
-	/// The proxy for shape B
-	b2ShapeProxy proxyB;
-
-	/// The world transform for shape A
-	b2Transform transformA;
-
-	/// The world transform for shape B
-	b2Transform transformB;
-
-	/// Should the proxy radius be considered?
-	bool useRadii;
-} b2DistanceInput;
-
-/// Output for b2ShapeDistance
-typedef struct b2DistanceOutput
+/**
+ * Output for b2ShapeDistance
+ */
+export class b2DistanceOutput
 {
-	b2Vec2 pointA;	  ///< Closest point on shapeA
-	b2Vec2 pointB;	  ///< Closest point on shapeB
-	b2Vec2 normal;	  ///< Normal vector that points from A to B. Invalid if distance is zero.
-	float distance;	  ///< The final distance, zero if overlapped
-	int iterations;	  ///< Number of GJK iterations used
-	int simplexCount; ///< The number of simplexes stored in the simplex array
-} b2DistanceOutput;
+	/**
+	 * 
+	 * @param {Vec2} pointA Closest point on shapeA
+	 * @param {Vec2} pointB Closest point on shapeB
+	 * @param {Vec2} normal Normal vector that points from A to B. Invalid if distance is zero.
+	 * @param {number} distance The final distance, zero if overlapped
+	 * @param {number} iterations Number of GJK iterations used
+	 * @param {number} simplexCount The number of simplexes stored in the simplex array
+	 */
+	constructor(pointA, pointB, normal, distance, iterations, simplexCount) {
+		this.pointA = pointA;
+		this.pointB = pointB;
+		this.normal = normal;
+		this.distance = distance;
+		this.iterations = iterations;
+		this.simplexCount = simplexCount;
+	}
+}
 
-/// Simplex vertex for debugging the GJK algorithm
-typedef struct b2SimplexVertex
+/**
+ * Simplex vertex for debugging the GJK algorithm
+ */
+export class b2SimplexVertex
 {
-	b2Vec2 wA;	///< support point in proxyA
-	b2Vec2 wB;	///< support point in proxyB
-	b2Vec2 w;	///< wB - wA
-	float a;	///< barycentric coordinate for closest point
-	int indexA; ///< wA index
-	int indexB; ///< wB index
-} b2SimplexVertex;
+	/**
+	 * 
+	 * @param {Vec2} wA Support point in proxyA
+	 * @param {Vec2} wB Support point in proxyB
+	 * @param {Vec2} w wB - wA
+	 * @param {number} a Barycentric coordinate for closest point
+	 * @param {number} indexA wA index
+	 * @param {number} indexB wB index
+	 */
+	constructor(wA, wB, w, a, indexA, indexB) {
+		this.wA = wA;
+		this.wB = wB;
+		this.w = w;
+		this.a = a;
+		this.indexA = indexA;
+		this.indexB = indexB;
+	}
+}
 
-/// Simplex from the GJK algorithm
-typedef struct b2Simplex
+/**
+ * Simplex from the GJK algorithm
+ */
+export class b2Simplex
 {
-	b2SimplexVertex v1, v2, v3; ///< vertices
-	int count;					///< number of valid vertices
-} b2Simplex;
+	/**
+	 * 
+	 * @param {b2SimplexVertex} v1 Vertices
+	 * @param {b2SimplexVertex} v2 Vertices
+	 * @param {b2SimplexVertex} v3 Vertices
+	 * @param {number} count Number of valid vertices
+	 */
+	constructor(v1, v2, v3, count) {
+		this.v1 = v1;
+		this.v2 = v2;
+		this.v3 = v3;
+		this.count = count;
+	}
+}
 
 /*
 /// Compute the closest points between two shapes represented as point clouds.
@@ -445,17 +494,31 @@ B2_API b2DistanceOutput b2ShapeDistance( const b2DistanceInput* input, b2Simplex
 										 int simplexCapacity );
 */
 
-/// Input parameters for b2ShapeCast
-typedef struct b2ShapeCastPairInput
+/**
+ * Input parameters for b2ShapeCast
+ */
+export class b2ShapeCastPairInput
 {
-	b2ShapeProxy proxyA;	///< The proxy for shape A
-	b2ShapeProxy proxyB;	///< The proxy for shape B
-	b2Transform transformA; ///< The world transform for shape A
-	b2Transform transformB; ///< The world transform for shape B
-	b2Vec2 translationB;	///< The translation of shape B
-	float maxFraction;		///< The fraction of the translation to consider, typically 1
-	bool canEncroach;		///< Allows shapes with a radius to move slightly closer if already touching
-} b2ShapeCastPairInput;
+	/**
+	 * 
+	 * @param {b2ShapeProxy} proxyA The proxy for shape A
+	 * @param {b2ShapeProxy} proxyB The proxy for shape B
+	 * @param {b2Transform} transformA The world transform for shape A
+	 * @param {b2Transform} transformB The world transform for shape B
+	 * @param {Vec2} translationB The translation of shape B
+	 * @param {number} maxFraction The fraction of the translation to consider, typically 1
+	 * @param {boolean} canEncroach Allows shapes with a radius to move slightly closer if already touching
+	 */
+	constructor(proxyA, proxyB, transformA, transformB, translationB, maxFraction, canEncroach) {
+		this.proxyA = proxyA;
+		this.proxyB = proxyB;
+		this.transformA = transformA;
+		this.transformB = transformB;
+		this.translationB = translationB;
+		this.maxFraction = maxFraction;
+		this.canEncroach = canEncroach;
+	}
+}
 
 /*
 /// Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.
@@ -469,42 +532,68 @@ B2_API b2ShapeProxy b2MakeProxy( const b2Vec2* points, int count, float radius )
 B2_API b2ShapeProxy b2MakeOffsetProxy( const b2Vec2* points, int count, float radius, b2Vec2 position, b2Rot rotation );
 */
 
-/// This describes the motion of a body/shape for TOI computation. Shapes are defined with respect to the body origin,
-/// which may not coincide with the center of mass. However, to support dynamics we must interpolate the center of mass
-/// position.
-typedef struct b2Sweep
+/**
+ * This describes the motion of a body/shape for TOI computation. Shapes are defined with respect to the body origin,
+ * which may not coincide with the center of mass. However, to support dynamics we must interpolate the center of mass
+ * position.
+ */
+export class b2Sweep
 {
-	b2Vec2 localCenter; ///< Local center of mass position
-	b2Vec2 c1;			///< Starting center of mass world position
-	b2Vec2 c2;			///< Ending center of mass world position
-	b2Rot q1;			///< Starting world rotation
-	b2Rot q2;			///< Ending world rotation
-} b2Sweep;
+	/**
+	 * 
+	 * @param {Vec2} localCenter Locale center of mass position
+	 * @param {Vec2} c1 Starting center of mass world position
+	 * @param {Vec2} c2 Ending center of mass world position
+	 * @param {Rot} q1 Starting world rotation
+	 * @param {Rot} q2 Ending world rotation
+	 */
+	constructor(localCenter, c1, c2, q1, q2) {
+		this.localCenter = localCenter;
+		this.c1 = c1;
+		this.c2 = c2;
+		this.q1 = q1;
+		this.q2 = q2;
+	}
+}
 
 /*
 /// Evaluate the transform sweep at a specific time.
 B2_API b2Transform b2GetSweepTransform( const b2Sweep* sweep, float time );
 */
 
-/// Time of impact input
-typedef struct b2TOIInput
+/**
+ * Time of impact input
+ */
+export class b2TOIInput
 {
-	b2ShapeProxy proxyA; ///< The proxy for shape A
-	b2ShapeProxy proxyB; ///< The proxy for shape B
-	b2Sweep sweepA;		 ///< The movement of shape A
-	b2Sweep sweepB;		 ///< The movement of shape B
-	float maxFraction;	 ///< Defines the sweep interval [0, maxFraction]
-} b2TOIInput;
+	/**
+	 * 
+	 * @param {b2ShapeProxy} proxyA The proxy for shape A
+	 * @param {b2ShapeProxy} proxyB The proxy for shape B
+	 * @param {b2Sweep} sweepA The movement of shape A
+	 * @param {b2Sweep} sweepB The movement of shape B
+	 * @param {number} maxFraction Defines the sweep interval [0, maxFraction]
+	 */
+	constructor(proxyA, proxyB, sweepA, sweepB, maxFraction) {
+		this.proxyA = proxyA;
+		this.proxyB = proxyB;
+		this.sweepA = sweepA;
+		this.sweepB = sweepB;
+		this.maxFraction = maxFraction;
+	}
+}
 
-/// Describes the TOI output
-typedef enum b2TOIState
+/**
+ * Describes the TOI output
+ */
+enum b2TOIState
 {
 	b2_toiStateUnknown,
 	b2_toiStateFailed,
 	b2_toiStateOverlapped,
 	b2_toiStateHit,
 	b2_toiStateSeparated
-} b2TOIState;
+}
 
 /// Time of impact output
 typedef struct b2TOIOutput
@@ -530,7 +619,7 @@ typedef struct b2TOIOutput
 B2_API b2TOIOutput b2TimeOfImpact( const b2TOIInput* input );
 */
 
-/**@}*/
+//#endregion Distance
 
 /**
  * @defgroup collision Collision
