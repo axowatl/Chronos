@@ -1,4 +1,4 @@
-import { Rot, Vec2 } from "./math_functions";
+import { AABB, Plane, Rot, Vec2 } from "./math_functions";
 
 /**
  * Low level ray cast input data
@@ -586,30 +586,33 @@ export class b2TOIInput
 /**
  * Describes the TOI output
  */
-enum b2TOIState
-{
-	b2_toiStateUnknown,
-	b2_toiStateFailed,
-	b2_toiStateOverlapped,
-	b2_toiStateHit,
-	b2_toiStateSeparated
+export const b2TOIState = {
+	b2_toiStateUnknown: 0,
+	b2_toiStateFailed: 1,
+	b2_toiStateOverlapped: 2,
+	b2_toiStateHit: 3,
+	b2_toiStateSeparated: 4
 }
 
-/// Time of impact output
-typedef struct b2TOIOutput
+/**
+ * Time of impact output
+ */
+export class b2TOIOutput
 {
-	/// The type of result
-	b2TOIState state;
-
-	/// The hit point
-	b2Vec2 point;
-
-	/// The hit normal
-	b2Vec2 normal;
-
-	/// The sweep time of the collision 
-	float fraction;
-} b2TOIOutput;
+	/**
+	 * 
+	 * @param {b2TOIState} state The type of result
+	 * @param {Vec2} point The hit point
+	 * @param {Vec2} normal The hit normal
+	 * @param {number} fraction The sweep time of the collision
+	 */
+	constructor(state, point, normal, fraction) {
+		this.state = state;
+		this.point = point;
+		this.normal = normal;
+		this.fraction = fraction;
+	}
+}
 
 /*
 /// Compute the upper bound on time before two shapes penetrate. Time is represented as
@@ -621,72 +624,64 @@ B2_API b2TOIOutput b2TimeOfImpact( const b2TOIInput* input );
 
 //#endregion Distance
 
+//#region Collision
+
 /**
- * @defgroup collision Collision
- * @brief Functions for colliding pairs of shapes
- * @{
+ * A manifold point is a contact point belonging to a contact manifold.
+ * It holds details related to the geometry and dynamics of the contact points.
+ * Box2D uses speculative collision so some contact points may be separated.
+ * You may use the totalNormalImpulse to determine if there was an interaction during
+ * the time step.
  */
-
-/// A manifold point is a contact point belonging to a contact manifold.
-/// It holds details related to the geometry and dynamics of the contact points.
-/// Box2D uses speculative collision so some contact points may be separated.
-/// You may use the totalNormalImpulse to determine if there was an interaction during
-/// the time step.
-typedef struct b2ManifoldPoint
+export class b2ManifoldPoint
 {
-	/// Location of the contact point in world space. Subject to precision loss at large coordinates.
-	/// @note Should only be used for debugging.
-	b2Vec2 point;
+	/**
+	 * 
+	 * @param {Vec2} point Location of the contact point in world space. Subject to precision loss at large coordinates.(Should only be used for debugging.)
+	 * @param {Vec2} anchorA Location of the contact point relative to shapeA's origin in world space(When used internally to the Box2D solver, this is relative to the body center of mass.)
+	 * @param {Vec2} anchorB Location of the contact point relative to shapeB's origin in world space(When used internally to the Box2D solver, this is relative to the body center of mass.)
+	 * @param {number} separation The separation of the contact point, negative if penetrating
+	 * @param {number} normalImpulse The impulse along the manifold normal vector.
+	 * @param {number} tangentImpulse The friction impulse
+	 * @param {number} totalNormalImpulse The total normal impulse applied across sub-stepping and restitution. This is important to identify speculative contact points that had an interaction in the time step.
+	 * @param {number} normalVelocity Relative normal velocity pre-solve. Used for hit events. If the normal impulse is zero then there was no hit. Negative means shapes are approaching.
+	 * @param {number} id Uniquely identifies a contact point between two shapes
+	 * @param {boolean} persisted Did this contact point exist the previous step?
+	 */
+	constructor(point, anchorA, anchorB, separation, normalImpulse, tangentImpulse, totalNormalImpulse, normalVelocity, id, persisted) {
+		this.point = point;
+		this.anchorA = anchorA;
+		this.anchorB = anchorB;
+		this.separation = separation;
+		this.normalImpulse = normalImpulse;
+		this.tangentImpulse = tangentImpulse;
+		this.totalNormalImpulse = totalNormalImpulse;
+		this.normalVelocity = normalVelocity;
+		this.id = id;
+		this.persisted = persisted;
+	}
+}
 
-	/// Location of the contact point relative to shapeA's origin in world space
-	/// @note When used internally to the Box2D solver, this is relative to the body center of mass.
-	b2Vec2 anchorA;
-
-	/// Location of the contact point relative to shapeB's origin in world space
-	/// @note When used internally to the Box2D solver, this is relative to the body center of mass.
-	b2Vec2 anchorB;
-
-	/// The separation of the contact point, negative if penetrating
-	float separation;
-
-	/// The impulse along the manifold normal vector.
-	float normalImpulse;
-
-	/// The friction impulse
-	float tangentImpulse;
-
-	/// The total normal impulse applied across sub-stepping and restitution. This is important
-	/// to identify speculative contact points that had an interaction in the time step.
-	float totalNormalImpulse;
-
-	/// Relative normal velocity pre-solve. Used for hit events. If the normal impulse is
-	/// zero then there was no hit. Negative means shapes are approaching.
-	float normalVelocity;
-
-	/// Uniquely identifies a contact point between two shapes
-	uint16_t id;
-
-	/// Did this contact point exist the previous step?
-	bool persisted;
-} b2ManifoldPoint;
-
-/// A contact manifold describes the contact points between colliding shapes.
-/// @note Box2D uses speculative collision so some contact points may be separated.
-typedef struct b2Manifold
+/**
+ * A contact manifold describes the contact points between colliding shapes.
+ * @note Box2D uses speculative collision so some contact points may be separated.
+ */
+export class b2Manifold
 {
-	/// The unit normal vector in world space, points from shape A to bodyB
-	b2Vec2 normal;
-
-	/// Angular impulse applied for rolling resistance. N * m * s = kg * m^2 / s
-	float rollingImpulse;
-
-	/// The manifold points, up to two are possible in 2D
-	b2ManifoldPoint points[2];
-
-	/// The number of contacts points, will be 0, 1, or 2
-	int pointCount;
-
-} b2Manifold;
+	/**
+	 * 
+	 * @param {Vec2} normal The unit normal vector in world space, points from shape A to bodyB
+	 * @param {number} rollingImpulse Angular impulse applied for rolling resistance. N * m * s = kg * m^2 / s
+	 * @param {b2ManifoldPoint} points [2]The manifold points, up to two are possible in 2D
+	 * @param {number} pointCount The number of contacts points, will be 0, 1, or 2
+	 */
+	constructor(normal, rollingImpulse, points, pointCount) {
+		this.normal = normal;
+		this.rollingImpulse = rollingImpulse;
+		this.points = points;
+		this.pointCount = pointCount;
+	}
+}
 
 /*
 /// Compute the contact manifold between two circles
@@ -734,73 +729,74 @@ B2_API b2Manifold b2CollideChainSegmentAndCapsule( const b2ChainSegment* segment
 B2_API b2Manifold b2CollideChainSegmentAndPolygon( const b2ChainSegment* segmentA, b2Transform xfA, const b2Polygon* polygonB,
 												   b2Transform xfB, b2SimplexCache* cache );
 */
-/**@}*/
+//#endregion Collision
+
+//#region Dynamic Tree
+
+/*
+The dynamic tree is a binary AABB tree to organize and query large numbers of geometric objects
+Box2D uses the dynamic tree internally to sort collision shapes into a binary bounding volume hierarchy.
+This data structure may have uses in games for organizing other geometry data and may be used independently
+of Box2D rigid body simulation.
+A dynamic AABB tree broad-phase, inspired by Nathanael Presson's btDbvt.
+A dynamic tree arranges data in a binary tree to accelerate
+queries such as AABB queries and ray casts. Leaf nodes are proxies
+with an AABB. These are used to hold a user collision object.
+Nodes are pooled and relocatable, so I use node indices rather than pointers.
+The dynamic tree is made available for advanced users that would like to use it to organize
+spatial game data besides rigid bodies.
+*/
 
 /**
- * @defgroup tree Dynamic Tree
- * The dynamic tree is a binary AABB tree to organize and query large numbers of geometric objects
- *
- * Box2D uses the dynamic tree internally to sort collision shapes into a binary bounding volume hierarchy.
- * This data structure may have uses in games for organizing other geometry data and may be used independently
- * of Box2D rigid body simulation.
- *
- * A dynamic AABB tree broad-phase, inspired by Nathanael Presson's btDbvt.
- * A dynamic tree arranges data in a binary tree to accelerate
- * queries such as AABB queries and ray casts. Leaf nodes are proxies
- * with an AABB. These are used to hold a user collision object.
- * Nodes are pooled and relocatable, so I use node indices rather than pointers.
- * The dynamic tree is made available for advanced users that would like to use it to organize
- * spatial game data besides rigid bodies.
- * @{
+ * The dynamic tree structure. This should be considered private data.
+ * It is placed here for performance reasons.
  */
-
-/// The dynamic tree structure. This should be considered private data.
-/// It is placed here for performance reasons.
-typedef struct b2DynamicTree
+export class b2DynamicTree
 {
-	/// The tree nodes
-	struct b2TreeNode* nodes;
+	/**
+	 * 
+	 * @param {b2TreeNode} nodes The tree nodes
+	 * @param {number} root The root index
+	 * @param {number} nodeCount The number of nodes
+	 * @param {number} nodeCapacity The allocated node space
+	 * @param {number} freeList Node free list
+	 * @param {number} proxyCount Number of proxies created
+	 * @param {number} leafIndices Leaf indices for rebuild
+	 * @param {AABB} leafBoxes Leaf bounding boxes for rebuild
+	 * @param {Vec2} leafCenters Leaf bounding box centers for rebuild
+	 * @param {number} binIndices Bins for sorting during rebuild
+	 * @param {number} rebuildCapacity Allocated space for rebuilding
+	 */
+	constructor(nodes, root, nodeCount, nodeCapacity, freeList, proxyCount, leafIndices, leafBoxes, leafCenters, binIndices, rebuildCapacity) {
+		this.nodes = nodes;
+		this.root = root;
+		this.nodeCount = nodeCount;
+		this.nodeCapacity = nodeCapacity;
+		this.freeList = freeList;
+		this.proxyCount = proxyCount;
+		this.leafIndices = leafIndices;
+		this.leafBoxes = leafBoxes;
+		this.leafCenters = leafCenters;
+		this.binIndices = binIndices;
+		this.rebuildCapacity = rebuildCapacity;
+	}
+}
 
-	/// The root index
-	int root;
-
-	/// The number of nodes
-	int nodeCount;
-
-	/// The allocated node space
-	int nodeCapacity;
-
-	/// Node free list
-	int freeList;
-
-	/// Number of proxies created
-	int proxyCount;
-
-	/// Leaf indices for rebuild
-	int* leafIndices;
-
-	/// Leaf bounding boxes for rebuild
-	b2AABB* leafBoxes;
-
-	/// Leaf bounding box centers for rebuild
-	b2Vec2* leafCenters;
-
-	/// Bins for sorting during rebuild
-	int* binIndices;
-
-	/// Allocated space for rebuilding
-	int rebuildCapacity;
-} b2DynamicTree;
-
-/// These are performance results returned by dynamic tree queries.
-typedef struct b2TreeStats
+/**
+ * These are performance results returned by dynamic tree queries.
+ */
+export class b2TreeStats
 {
-	/// Number of internal nodes visited during the query
-	int nodeVisits;
-
-	/// Number of leaf nodes visited during the query
-	int leafVisits;
-} b2TreeStats;
+	/**
+	 * 
+	 * @param {number} nodeVisits Number of internal nodes visited during the query
+	 * @param {number} leafVisits Number of leaf nodes visited during the query
+	 */
+	constructor(nodeVisits, leafVisits) {
+		this.nodeVisits = nodeVisits;
+		this.leafVisits = leafVisits;
+	}
+}
 
 /*
 /// Constructing the tree initializes the node pool.
@@ -916,54 +912,64 @@ B2_API void b2DynamicTree_Validate( const b2DynamicTree* tree );
 /// Validate this tree has no enlarged AABBs. For testing.
 B2_API void b2DynamicTree_ValidateNoEnlarged( const b2DynamicTree* tree );
 */
-/**@}*/
+//#endregion Dynamic Tree
+
+//#region Character mover
 
 /**
- * @defgroup character Character mover
- * Character movement solver
- * @{
+ * These are the collision planes returned from b2World_CollideMover
  */
-
-/// These are the collision planes returned from b2World_CollideMover
-typedef struct b2PlaneResult
+export class b2PlaneResult
 {
-	/// The collision plane between the mover and a convex shape
-	b2Plane plane;
+	/**
+	 * 
+	 * @param {Plane} plane The collision plane between the mover and a convex shape
+	 * @param {Vec2} point The collision point on the shape.
+	 * @param {boolean} hit Did the collision register a hit? If not this plane should be ignored.
+	 */
+	constructor(plane, point, hit) {
+		this.plane = plane;
+		this.point = point;
+		this.hit = hit;
+	}
+}
 
-	// The collision point on the shape.
-	b2Vec2 point;
-
-	/// Did the collision register a hit? If not this plane should be ignored.
-	bool hit;
-} b2PlaneResult;
-
-/// These are collision planes that can be fed to b2SolvePlanes. Normally
-/// this is assembled by the user from plane results in b2PlaneResult
-typedef struct b2CollisionPlane
+/**
+ * These are collision planes that can be fed to b2SolvePlanes. Normally
+ * this is assembled by the user from plane results in b2PlaneResult
+ */
+export class b2CollisionPlane
 {
-	/// The collision plane between the mover and some shape
-	b2Plane plane;
+	/**
+	 * 
+	 * @param {Plane} plane The collision plane between the mover and some shape
+	 * @param {number} pushLimit Setting this to FLT_MAX makes the plane as rigid as possible. Lower values can make the plane collision soft. Usually in meters.
+	 * @param {number} push The push on the mover determined by b2SolvePlanes. Usually in meters.
+	 * @param {boolean} clipVelocity Indicates if b2ClipVector should clip against this plane. Should be false for soft collision.
+	 */
+	constructor(plane, pushLimit, push, clipVelocity) {
+		this.plane = plane;
+		this.pushLimit = pushLimit;
+		this.push = push;
+		this.clipVelocity = clipVelocity;
+	}
+}
 
-	/// Setting this to FLT_MAX makes the plane as rigid as possible. Lower values can
-	/// make the plane collision soft. Usually in meters.
-	float pushLimit;
-
-	/// The push on the mover determined by b2SolvePlanes. Usually in meters.
-	float push;
-
-	/// Indicates if b2ClipVector should clip against this plane. Should be false for soft collision.
-	bool clipVelocity;
-} b2CollisionPlane;
-
-/// Result returned by b2SolvePlanes
-typedef struct b2PlaneSolverResult
+/**
+ * Result returned by b2SolvePlanes
+ */
+export class b2PlaneSolverResult
 {
-	/// The translation of the mover
-	b2Vec2 translation;
-
-	/// The number of iterations used by the plane solver. For diagnostics.
-	int iterationCount;
-} b2PlaneSolverResult;
+	/**
+	 * 
+	 * @param {Vec2} translation The translation of the mover
+	 * @param {number} iterationCount The number of iterations used by the plane solver. For diagnostics.
+	 */
+	constructor(translation, iterationCount) {
+		this.translation = translation;
+		this.iterationCount = iterationCount;
+	}
+}
 
 /*
 /// Solves the position of a mover that satisfies the given collision planes.
@@ -976,3 +982,4 @@ B2_API b2PlaneSolverResult b2SolvePlanes( b2Vec2 targetDelta, b2CollisionPlane* 
 /// set to false are skipped.
 B2_API b2Vec2 b2ClipVector( b2Vec2 vector, const b2CollisionPlane* planes, int count );
 */
+//#endregion Character mover
