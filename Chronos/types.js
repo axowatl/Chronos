@@ -1,5 +1,8 @@
-#define B2_DEFAULT_CATEGORY_BITS 1
-#define B2_DEFAULT_MASK_BITS UINT64_MAX
+import { ShapeId } from "./id";
+import { Vec2 } from "./math_functions";
+
+export const B2_DEFAULT_CATEGORY_BITS = 1;
+export const B2_DEFAULT_MASK_BITS = UINT64_MAX;
 
 /*
 /// Task interface
@@ -17,7 +20,6 @@
 /// 	DoWork();
 /// }
 /// @endcode
-/// @ingroup world
 typedef void b2TaskCallback( int startIndex, int endIndex, uint32_t workerIndex, void* taskContext );
 
 /// These functions can be provided to Box2D to invoke a task system. These are designed to work well with enkiTS.
@@ -30,44 +32,54 @@ typedef void b2TaskCallback( int startIndex, int endIndex, uint32_t workerIndex,
 /// In general the range [startIndex, endIndex) send to b2TaskCallback should obey:
 /// endIndex - startIndex >= minRange
 /// The exception of course is when itemCount < minRange.
-/// @ingroup world
 typedef void* b2EnqueueTaskCallback( b2TaskCallback* task, int itemCount, int minRange, void* taskContext, void* userContext );
 
 /// Finishes a user task object that wraps a Box2D task.
-/// @ingroup world
 typedef void b2FinishTaskCallback( void* userTask, void* userContext );
 
 /// Optional friction mixing callback. This intentionally provides no context objects because this is called
 /// from a worker thread.
 /// @warning This function should not attempt to modify Box2D state or user application state.
-/// @ingroup world
 typedef float b2FrictionCallback( float frictionA, uint64_t userMaterialIdA, float frictionB, uint64_t userMaterialIdB );
 
 /// Optional restitution mixing callback. This intentionally provides no context objects because this is called
 /// from a worker thread.
 /// @warning This function should not attempt to modify Box2D state or user application state.
-/// @ingroup world
 typedef float b2RestitutionCallback( float restitutionA, uint64_t userMaterialIdA, float restitutionB, uint64_t userMaterialIdB );
 */
 
-/// Result from b2World_RayCastClosest
-/// If there is initial overlap the fraction and normal will be zero while the point is an arbitrary point in the overlap region.
-/// @ingroup world
-typedef struct b2RayResult
+/**
+ * Result from b2World_RayCastClosest
+ * If there is initial overlap the fraction and normal will be zero while the point is an arbitrary point in the overlap region.
+ */
+export class b2RayResult
 {
-	b2ShapeId shapeId;
-	b2Vec2 point;
-	b2Vec2 normal;
-	float fraction;
-	int nodeVisits;
-	int leafVisits;
-	bool hit;
-} b2RayResult;
+	/**
+	 * 
+	 * @param {ShapeId} shapeId 
+	 * @param {Vec2} point 
+	 * @param {Vec2} normal 
+	 * @param {number} fraction 
+	 * @param {number} nodeVisits 
+	 * @param {number} leafVisits 
+	 * @param {boolean} hit 
+	 */
+	constructor(shapeId, point, normal, fraction, nodeVisits, leafVisits, hit) {
+		this.shapeId = shapeId;
+		this.point = point;
+		this.normal = normal;
+		this.fraction = fraction;
+		this.nodeVisits = nodeVisits;
+		this.leafVisits = leafVisits;
+		this.hit = hit;
+	}
+}
 
-/// World definition used to create a simulation world.
-/// Must be initialized using b2DefaultWorldDef().
-/// @ingroup world
-typedef struct b2WorldDef
+/**
+ * World definition used to create a simulation world.
+ * Must be initialized using b2DefaultWorldDef().
+ */
+export class b2WorldDef
 {
 	/// Gravity vector. Box2D has no up-vector defined.
 	b2Vec2 gravity;
@@ -135,7 +147,6 @@ typedef struct b2WorldDef
 } b2WorldDef;
 
 /// Use this to initialize your world definition
-/// @ingroup world
 B2_API b2WorldDef b2DefaultWorldDef( void );
 
 /// The body simulation type.
@@ -860,7 +871,6 @@ B2_API b2WheelJointDef b2DefaultWheelJointDef( void );
 
 /// The explosion definition is used to configure options for explosions. Explosions
 /// consider shape geometry when computing the impulse.
-/// @ingroup world
 typedef struct b2ExplosionDef
 {
 	/// Mask bits to filter shapes
@@ -882,7 +892,6 @@ typedef struct b2ExplosionDef
 } b2ExplosionDef;
 
 /// Use this to initialize your explosion definition
-/// @ingroup world
 B2_API b2ExplosionDef b2DefaultExplosionDef( void );
 
 /**
@@ -1107,7 +1116,6 @@ typedef struct b2ContactData
 /// Return false if you want to disable the collision
 /// @see b2ShapeDef
 /// @warning Do not attempt to modify the world inside this callback
-/// @ingroup world
 typedef bool b2CustomFilterFcn( b2ShapeId shapeIdA, b2ShapeId shapeIdB, void* context );
 
 /// Prototype for a pre-solve callback.
@@ -1122,14 +1130,12 @@ typedef bool b2CustomFilterFcn( b2ShapeId shapeIdA, b2ShapeId shapeIdB, void* co
 /// - the supplied manifold has impulse values from the previous step
 /// Return false if you want to disable the contact this step
 /// @warning Do not attempt to modify the world inside this callback
-/// @ingroup world
 typedef bool b2PreSolveFcn( b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Vec2 point, b2Vec2 normal, void* context );
 
 /// Prototype callback for overlap queries.
 /// Called for each shape found in the query.
 /// @see b2World_OverlapABB
 /// @return false to terminate the query.
-/// @ingroup world
 typedef bool b2OverlapResultFcn( b2ShapeId shapeId, void* context );
 
 /// Prototype callback for ray and shape casts.
@@ -1147,7 +1153,6 @@ typedef bool b2OverlapResultFcn( b2ShapeId shapeId, void* context );
 /// @param context the user context
 /// @return -1 to filter, 0 to terminate, fraction to clip the ray for closest hit, 1 to continue
 /// @see b2World_CastRay
-/// @ingroup world
 typedef float b2CastResultFcn( b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* context );
 
 // Used to collect collision planes for character movers.
@@ -1310,7 +1315,6 @@ typedef enum b2HexColor
 
 /// This struct holds callbacks you can implement to draw a Box2D world.
 /// This structure should be zero initialized.
-/// @ingroup world
 typedef struct b2DebugDraw
 {
 	/// Draw a closed polygon provided in CCW order.

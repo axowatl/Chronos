@@ -8,13 +8,13 @@
  * For example in C++:
  *
  * @code{.cxx}
- * b2WorldId worldId = {};
+ * WorldId worldId = {};
  * @endcode
  *
  * Or in C:
  *
  * @code{.c}
- * b2WorldId worldId = {0};
+ * WorldId worldId = {0};
  * @endcode
  *
  * These are both considered null.
@@ -27,7 +27,7 @@
 /**
  * World id references a world instance. This should be treated as an opaque handle.
  */
-export class b2WorldId
+export class WorldId
 {
     /**
      * 
@@ -43,7 +43,7 @@ export class b2WorldId
 /**
  * Body id references a body instance. This should be treated as an opaque handle.
  */
-export class b2BodyId
+export class BodyId
 {
     /**
      * 
@@ -61,7 +61,7 @@ export class b2BodyId
 /**
  * Shape id references a shape instance. This should be treated as an opaque handle.
  */
-export class b2ShapeId
+export class ShapeId
 {
 	/**
      * 
@@ -79,7 +79,7 @@ export class b2ShapeId
 /**
  * Chain id references a chain instances. This should be treated as an opaque handle.
  */
-export class b2ChainId
+export class ChainId
 {
 	/**
      * 
@@ -97,7 +97,7 @@ export class b2ChainId
 /**
  * Joint id references a joint instance. This should be treated as an opaque handle.
  */
-export class b2JointId
+export class JointId
 {
 	/**
      * 
@@ -115,7 +115,7 @@ export class b2JointId
 /**
  * Contact id references a contact instance. This should be treated as an opaque handled.
  */
-export class b2ContactId
+export class ContactId
 {
 	/**
      * 
@@ -135,41 +135,41 @@ export class b2ContactId
 
 /// Use these to make your identifiers null.
 /// You may also use zero initialization to get null.
-export const b2_nullWorldId = new b2WorldId(0, 0);
-export const b2_nullBodyId = new b2BodyId(0, 0, 0);
-export const b2_nullShapeId = new b2ShapeId(0, 0, 0);
-export const b2_nullChainId = new b2ChainId(0, 0, 0);
-export const b2_nullJointId = new b2JointId(0, 0, 0);
-export const b2_nullContactId = new b2ContactId(0, 0, 0, 0);
+export const nullWorldId = new WorldId(0, 0);
+export const nullBodyId = new BodyId(0, 0, 0);
+export const nullShapeId = new ShapeId(0, 0, 0);
+export const nullChainId = new ChainId(0, 0, 0);
+export const nullJointId = new JointId(0, 0, 0);
+export const nullContactId = new ContactId(0, 0, 0, 0);
 
 /**
  * Macro to determine if any id is null.
- * @param {b2WorldId | b2BodyId | b2ShapeId | b2ChainId | b2JointId | b2ContactId} id 
+ * @param {WorldId | BodyId | ShapeId | ChainId | JointId | ContactId} id 
  * @returns {boolean}
  */
 export function IS_NULL(id) { return id.index1 == 0; }
 
 /**
  * Macro to determine if any id is non-null.
- * @param {b2WorldId | b2BodyId | b2ShapeId | b2ChainId | b2JointId | b2ContactId} id 
+ * @param {WorldId | BodyId | ShapeId | ChainId | JointId | ContactId} id 
  * @returns {boolean}
  */
 export function IS_NON_NULL(id) { return id.index1 != 0; }
 
 /**
- * Compare two ids for equality. Doesn't work for b2WorldId. Don't mix types.
- * @param {b2BodyId | b2ShapeId | b2ChainId | b2JointId | b2ContactId} id1 
- * @param {b2BodyId | b2ShapeId | b2ChainId | b2JointId | b2ContactId} id2 
+ * Compare two ids for equality. Doesn't work for WorldId. Don't mix types.
+ * @param {BodyId | ShapeId | ChainId | JointId | ContactId} id1 
+ * @param {BodyId | ShapeId | ChainId | JointId | ContactId} id2 
  * @returns {boolean}
  */
 export function ID_EQUALS(id1, id2) { return id1.index1 == id2.index1 && id1.world0 == id2.world0 && id1.generation == id2.generation; }
 
 /**
  * Store a world id into a uint32_t.
- * @param {b2WorldId} id
+ * @param {WorldId} id
  * @returns {number}
  */
-export function b2StoreWorldId(id)
+export function StoreWorldId(id)
 {
 	return (id.index1 << 16) | id.generation;
 }
@@ -177,19 +177,19 @@ export function b2StoreWorldId(id)
 /**
  * Load a uint32_t into a world id.
  * @param {number} x 
- * @returns {b2WorldId}
+ * @returns {WorldId}
  */
-export function b2LoadWorldId(x)
+export function LoadWorldId(x)
 {
-    return new b2WorldId(x >>> 16, x & 0xFFFF);
+    return new WorldId(x >>> 16, x & 0xFFFF);
 }
 
 /**
  * Store a body id into a 64-bit integer using BigInt.
- * @param {b2BodyId} id 
+ * @param {BodyId} id 
  * @returns {BigInt}
  */
-export function b2StoreBodyId(id) {
+export function StoreBodyId(id) {
     const index1 = BigInt(id.index1);
     const world0 = BigInt(id.world0);
     const generation = BigInt(id.generation);
@@ -200,22 +200,22 @@ export function b2StoreBodyId(id) {
 /**
  * Load a 64-bit integer into a body id using BigInt.
  * @param {BigInt} x 
- * @returns {b2BodyId}
+ * @returns {BodyId}
  */
-export function b2LoadBodyId(x) {
+export function LoadBodyId(x) {
     const index1 = x >> 32n;
     const world0 = (x >> 16n) & 0xFFFFn;
     const generation = x & 0xFFFFn;
 
-    return new b2BodyId(Number(index1), Number(world0), Number(generation));
+    return new BodyId(Number(index1), Number(world0), Number(generation));
 }
 
 /**
  * Store a shape id into a 64-bit integer using BigInt.
- * @param {b2ShapeId} id 
+ * @param {ShapeId} id 
  * @returns {BigInt}
  */
-export function b2StoreShapeId(id)
+export function StoreShapeId(id)
 {
     const index1 = BigInt(id.index1);
     const world0 = BigInt(id.world0);
@@ -227,23 +227,23 @@ export function b2StoreShapeId(id)
 /**
  * Load a 64-bit integer into a shape id using BigInt.
  * @param {BigInt} x 
- * @returns {b2ShapeId}
+ * @returns {ShapeId}
  */
-export function b2LoadShapeId(x)
+export function LoadShapeId(x)
 {
 	const index1 = x >> 32n;
     const world0 = (x >> 16n) & 0xFFFFn;
     const generation = x & 0xFFFFn;
 
-    return new b2ShapeId(Number(index1), Number(world0), Number(generation));
+    return new ShapeId(Number(index1), Number(world0), Number(generation));
 }
 
 /**
  * Store a chain id into a 64-bit integer using BigInt.
- * @param {b2ChainId} id 
+ * @param {ChainId} id 
  * @returns {BigInt}
  */
-export function b2StoreChainId(id)
+export function StoreChainId(id)
 {
     const index1 = BigInt(id.index1);
     const world0 = BigInt(id.world0);
@@ -255,23 +255,23 @@ export function b2StoreChainId(id)
 /**
  * Load a 64-bit integer into a chain id using BigInt.
  * @param {BigInt} x 
- * @returns {b2ChainId}
+ * @returns {ChainId}
  */
-export function b2LoadChainId(x)
+export function LoadChainId(x)
 {
 	const index1 = x >> 32n;
     const world0 = (x >> 16n) & 0xFFFFn;
     const generation = x & 0xFFFFn;
 
-    return new b2ChainId(Number(index1), Number(world0), Number(generation));
+    return new ChainId(Number(index1), Number(world0), Number(generation));
 }
 
 /**
  * Store a joint id into a 64-bit integer using BigInt.
- * @param {b2JointId} id 
+ * @param {JointId} id 
  * @returns {BigInt}
  */
-export function b2StoreJointId(id)
+export function StoreJointId(id)
 {
     const index1 = BigInt(id.index1);
     const world0 = BigInt(id.world0);
@@ -283,23 +283,23 @@ export function b2StoreJointId(id)
 /**
  * Load a 64-bit integer into a joint id using BigInt.
  * @param {BigInt} x 
- * @returns {b2JointId}
+ * @returns {JointId}
  */
-export function b2LoadJointId(x)
+export function LoadJointId(x)
 {
 	const index1 = x >> 32n;
     const world0 = (x >> 16n) & 0xFFFFn;
     const generation = x & 0xFFFFn;
 
-    return new b2JointId(Number(index1), Number(world0), Number(generation));
+    return new JointId(Number(index1), Number(world0), Number(generation));
 }
 
 /**
  * Store a contact id into 16 bytes
- * @param {b2ContactId} id 
+ * @param {ContactId} id 
  * @returns {number[]}
  */
-export function b2StoreContactId(id)
+export function StoreContactId(id)
 {
     let values = new Array(3);
 	values[0] = id.index1;
@@ -311,10 +311,10 @@ export function b2StoreContactId(id)
 /**
  * Load a two uint64_t into a contact id.
  * @param {number[]} values 
- * @returns {b2ContactId}
+ * @returns {ContactId}
  */
-export function b2LoadContactId(values)
+export function LoadContactId(values)
 {
-	return new b2ContactId(values[0], values[1], 0, values[2]);
+	return new ContactId(values[0], values[1], 0, values[2]);
 }
 //#endregion Ids
