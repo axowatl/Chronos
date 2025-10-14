@@ -1,3 +1,4 @@
+import { B2_SECRET_COOKIE } from "./core";
 import { ShapeId } from "./id";
 import { Vec2 } from "./math_functions";
 
@@ -144,10 +145,27 @@ export class b2WorldDef
 
 	/// Used internally to detect a valid definition. DO NOT SET.
 	int internalValue;
-} b2WorldDef;
+	constructor(gravity, restitutionThreshold, hitEventThreshold, contactHertz, contactDampingRatio, contactSpeed, maximumLinearSpeed, frictionCallback, restitutionCallback, enableSleep, enableContinuous, enableContactSoftening, workerCount, enqueueTask, finishTask, userTaskContext, userdata, internalValue) {
+		
+	}
+}
 
 /// Use this to initialize your world definition
-B2_API b2WorldDef b2DefaultWorldDef( void );
+export const b2DefaultWorldDef = new b2WorldDef
+(
+	gravity.x = 0;
+	gravity.y = -10;
+	hitEventThreshold = 1 * b2_lengthUnitsPerMeter;
+	restitutionThreshold = 1 * b2_lengthUnitsPerMeter;
+	contactSpeed = 3 * b2_lengthUnitsPerMeter;
+	contactHertz = 30.0;
+	contactDampingRatio = 10;
+
+	maximumLinearSpeed = 400 * b2_lengthUnitsPerMeter;
+	enableSleep = true;
+	enableContinuous = true;
+	internalValue = B2_SECRET_COOKIE;
+);
 
 /// The body simulation type.
 /// Each body is one of these three types. The type determines how the body behaves in the simulation.
