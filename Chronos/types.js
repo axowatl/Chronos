@@ -3,7 +3,7 @@ import { ShapeId } from "./id";
 import { Rot, Rot_identity, Vec2 } from "./math_functions";
 
 export const B2_DEFAULT_CATEGORY_BITS = 1;
-export const B2_DEFAULT_MASK_BITS = UINT64_MAX;
+export const B2_DEFAULT_MASK_BITS = Number.MAX_SAFE_INTEGER;
 
 /*
 /// Task interface
@@ -390,176 +390,263 @@ export const b2DefaultBodyDef = (() => {
 	return def;
 });
 
-/// This is used to filter collision on shapes. It affects shape-vs-shape collision
-/// and shape-versus-query collision (such as b2World_CastRay).
-/// @ingroup shape
-typedef struct b2Filter
+/**
+ * This is used to filter collision on shapes. It affects shape-vs-shape collision
+ * and shape-versus-query collision (such as b2World_CastRay).
+ */
+export class b2Filter
 {
-	/// The collision category bits. Normally you would just set one bit. The category bits should
-	/// represent your application object types. For example:
-	/// @code{.cpp}
-	/// enum MyCategories
-	/// {
-	///    Static  = 0x00000001,
-	///    Dynamic = 0x00000002,
-	///    Debris  = 0x00000004,
-	///    Player  = 0x00000008,
-	///    // etc
-	/// };
-	/// @endcode
-	uint64_t categoryBits;
+	/**
+	 * The collision category bits. Normally you would just set one bit. The category bits should
+	 * represent your application object types.
+	 * @type {number}
+	 */
+	categoryBits;
 
-	/// The collision mask bits. This states the categories that this
-	/// shape would accept for collision.
-	/// For example, you may want your player to only collide with static objects
-	/// and other players.
-	/// @code{.c}
-	/// maskBits = Static | Player;
-	/// @endcode
-	uint64_t maskBits;
+	/**
+	 * The collision mask bits. This states the categories that this
+	 * shape would accept for collision.
+	 * @type {number}
+	 */
+	maskBits;
 
-	/// Collision groups allow a certain group of objects to never collide (negative)
-	/// or always collide (positive). A group index of zero has no effect. Non-zero group filtering
-	/// always wins against the mask bits.
-	/// For example, you may want ragdolls to collide with other ragdolls but you don't want
-	/// ragdoll self-collision. In this case you would give each ragdoll a unique negative group index
-	/// and apply that group index to all shapes on the ragdoll.
-	int groupIndex;
-} b2Filter;
+	/**
+	 * Collision groups allow a certain group of objects to never collide (negative)
+	 * or always collide (positive). A group index of zero has no effect. Non-zero group filtering
+	 * always wins against the mask bits.
+	 * For example, you may want ragdolls to collide with other ragdolls but you don't want
+	 * ragdoll self-collision. In this case you would give each ragdoll a unique negative group index
+	 * and apply that group index to all shapes on the ragdoll.
+	 * @type {number}
+	 */
+	groupIndex;
+}
 
-/// Use this to initialize your filter
-/// @ingroup shape
-B2_API b2Filter b2DefaultFilter( void );
+/**
+ * Use this to initialize your filter
+ */
+export const b2DefaultFilter = (() => {
+	const filter = new b2Filter();
+	filter.categoryBits = B2_DEFAULT_CATEGORY_BITS;
+	filter.maskBits = B2_DEFAULT_MASK_BITS;
+	filter.groupIndex = 0;
+	return filter;
+});
 
-/// The query filter is used to filter collisions between queries and shapes. For example,
-/// you may want a ray-cast representing a projectile to hit players and the static environment
-/// but not debris.
-/// @ingroup shape
-typedef struct b2QueryFilter
+/**
+ * The query filter is used to filter collisions between queries and shapes. For example,
+ * you may want a ray-cast representing a projectile to hit players and the static environment
+ * but not debris.
+ */
+export class b2QueryFilter
 {
-	/// The collision category bits of this query. Normally you would just set one bit.
-	uint64_t categoryBits;
+	/**
+	 * The collision category bits of this query. Normally you would just set one bit.
+	 * @type {number}
+	 */
+	categoryBits;
 
-	/// The collision mask bits. This states the shape categories that this
-	/// query would accept for collision.
-	uint64_t maskBits;
-} b2QueryFilter;
+	/**
+	 * The collision mask bits. This states the shape categories that this
+	 * query would accept for collision.
+	 * @type {number}
+	 */
+	maskBits;
+}
 
-/// Use this to initialize your query filter
-/// @ingroup shape
-B2_API b2QueryFilter b2DefaultQueryFilter( void );
+/**
+ * Use this to initialize your query filter
+ */
+export const b2DefaultQueryFilter = (() => {
+	const filter = new b2QueryFilter();
+	filter.categoryBits = B2_DEFAULT_CATEGORY_BITS;
+	filter.maskBits = B2_DEFAULT_MASK_BITS;
+	return filter;
+});
 
-/// Shape type
-/// @ingroup shape
-typedef enum b2ShapeType
-{
+/**
+ * Shape type
+ */
+export const b2ShapeType = {
 	/// A circle with an offset
-	b2_circleShape,
+	b2_circleShape: 0,
 
 	/// A capsule is an extruded circle
-	b2_capsuleShape,
+	b2_capsuleShape: 1,
 
 	/// A line segment
-	b2_segmentShape,
+	b2_segmentShape: 2,
 
 	/// A convex polygon
-	b2_polygonShape,
+	b2_polygonShape: 3,
 
 	/// A line segment owned by a chain shape
-	b2_chainSegmentShape,
+	b2_chainSegmentShape: 4,
+}
 
-	/// The number of shape types
-	b2_shapeTypeCount
-} b2ShapeType;
-
-/// Surface materials allow chain shapes to have per segment surface properties.
-/// @ingroup shape
-typedef struct b2SurfaceMaterial
+/**
+ * Surface materials allow chain shapes to have per segment surface properties.
+ */
+export class b2SurfaceMaterial
 {
-	/// The Coulomb (dry) friction coefficient, usually in the range [0,1].
-	float friction;
+	/**
+	 * The Coulomb (dry) friction coefficient, usually in the range [0,1].
+	 * @type {number}
+	 */
+	friction;
 
-	/// The coefficient of restitution (bounce) usually in the range [0,1].
-	/// https://en.wikipedia.org/wiki/Coefficient_of_restitution
-	float restitution;
+	/**
+	 * The coefficient of restitution (bounce) usually in the range [0,1].
+	 * https://en.wikipedia.org/wiki/Coefficient_of_restitution
+	 * @type {number}
+	 */
+	restitution;
 
-	/// The rolling resistance usually in the range [0,1].
-	float rollingResistance;
+	/**
+	 * The rolling resistance usually in the range [0,1].
+	 * @type {number}
+	 */
+	rollingResistance;
 
-	/// The tangent speed for conveyor belts
-	float tangentSpeed;
+	/**
+	 * The tangent speed for conveyor belts
+	 * @type {number}
+	 */
+	tangentSpeed;
 
-	/// User material identifier. This is passed with query results and to friction and restitution
-	/// combining functions. It is not used internally.
-	uint64_t userMaterialId;
+	/**
+	 * User material identifier. This is passed with query results and to friction and restitution
+	 * combining functions. It is not used internally.
+	 * @type {number}
+	 */
+	userMaterialId;
 
-	/// Custom debug draw color.
-	uint32_t customColor;
-} b2SurfaceMaterial;
+	/**
+	 * Custom debug draw color.
+	 * @type {number}
+	 */
+	customColor;
+}
 
-/// Use this to initialize your surface material
-/// @ingroup shape
-B2_API b2SurfaceMaterial b2DefaultSurfaceMaterial( void );
+/**
+ * Use this to initialize your surface material
+ */
+export const b2DefaultSurfaceMaterial = (() => {
+	const material = new b2SurfaceMaterial();
+	material.friction = 0.6;
 
-/// Used to create a shape.
-/// This is a temporary object used to bundle shape creation parameters. You may use
-/// the same shape definition to create multiple shapes.
-/// Must be initialized using b2DefaultShapeDef().
-/// @ingroup shape
-typedef struct b2ShapeDef
+	return material;
+});
+
+/**
+ * Used to create a shape.
+ * This is a temporary object used to bundle shape creation parameters. You may use
+ * the same shape definition to create multiple shapes.
+ * Must be initialized using b2DefaultShapeDef().
+ */
+export class b2ShapeDef
 {
-	/// Use this to store application specific shape data.
-	void* userData;
+	/**
+	 * Use this to store application specific shape data.
+	 * @type {any}
+	 */
+	userData;
 
-	/// The surface material for this shape.
-	b2SurfaceMaterial material;
+	/**
+	 * The surface material for this shape.
+	 * @type {b2SurfaceMaterial}
+	 */
+	material;
 
-	/// The density, usually in kg/m^2.
-	/// This is not part of the surface material because this is for the interior, which may have
-	/// other considerations, such as being hollow. For example a wood barrel may be hollow or full of water.
-	float density;
+	/**
+	 * The density, usually in kg/m^2.
+	 * This is not part of the surface material because this is for the interior, which may have
+	 * other considerations, such as being hollow. For example a wood barrel may be hollow or full of water.
+	 * @type {number}
+	 */
+	density;
 
-	/// Collision filtering data.
-	b2Filter filter;
+	/**
+	 * Collision filtering data.
+	 * @type {b2Filter}
+	 */
+	filter;
 
-	/// Enable custom filtering. Only one of the two shapes needs to enable custom filtering. See b2WorldDef.
-	bool enableCustomFiltering;
+	/**
+	 * Enable custom filtering. Only one of the two shapes needs to enable custom filtering. See b2WorldDef.
+	 * @type {boolean}
+	 */
+	enableCustomFiltering;
 
-	/// A sensor shape generates overlap events but never generates a collision response.
-	/// Sensors do not have continuous collision. Instead, use a ray or shape cast for those scenarios.
-	/// Sensors still contribute to the body mass if they have non-zero density.
-	/// @note Sensor events are disabled by default.
-	/// @see enableSensorEvents
-	bool isSensor;
+	/**
+	 * A sensor shape generates overlap events but never generates a collision response.
+	 * Sensors do not have continuous collision. Instead, use a ray or shape cast for those scenarios.
+	 * Sensors still contribute to the body mass if they have non-zero density.
+	 * @note Sensor events are disabled by default.
+	 * @see enableSensorEvents
+	 * @type {boolean}
+	 */
+	isSensor;
 
-	/// Enable sensor events for this shape. This applies to sensors and non-sensors. False by default, even for sensors.
-	bool enableSensorEvents;
+	/**
+	 * Enable sensor events for this shape. This applies to sensors and non-sensors. False by default, even for sensors.
+	 * @type {boolean}
+	 */
+	enableSensorEvents;
 
-	/// Enable contact events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors. False by default.
-	bool enableContactEvents;
+	/**
+	 * Enable contact events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors. False by default.
+	 * @type {boolean}
+	 */
+	enableContactEvents;
 
-	/// Enable hit events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors. False by default.
-	bool enableHitEvents;
+	/**
+	 * Enable hit events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors. False by default.
+	 * @type {boolean}
+	 */
+	enableHitEvents;
 
-	/// Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive
-	/// and must be carefully handled due to multithreading. Ignored for sensors.
-	bool enablePreSolveEvents;
+	/**
+	 * Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive
+	 * and must be carefully handled due to multithreading. Ignored for sensors.
+	 * @type {boolean}
+	 */
+	enablePreSolveEvents;
 
-	/// When shapes are created they will scan the environment for collision the next time step. This can significantly slow down
-	/// static body creation when there are many static shapes.
-	/// This is flag is ignored for dynamic and kinematic shapes which always invoke contact creation.
-	bool invokeContactCreation;
+	/**
+	 * When shapes are created they will scan the environment for collision the next time step. This can significantly slow down
+	 * static body creation when there are many static shapes.
+	 * This is flag is ignored for dynamic and kinematic shapes which always invoke contact creation.
+	 * @type {boolean}
+	 */
+	invokeContactCreation;
 
-	/// Should the body update the mass properties when this shape is created. Default is true.
-	bool updateBodyMass;
+	/**
+	 * Should the body update the mass properties when this shape is created. Default is true.
+	 * @type {boolean}
+	 */
+	updateBodyMass;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2ShapeDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your shape definition
-/// @ingroup shape
-B2_API b2ShapeDef b2DefaultShapeDef( void );
+/**
+ * Use this to initialize your shape definition
+ */
+export const b2DefaultShapeDef = (() => {
+	const def = new b2ShapeDef();
+	def.material = b2DefaultSurfaceMaterial;
+	def.density = 1;
+	def.filter = b2DefaultFilter;
+	def.updateBodyMass = true;
+	def.invokeContactCreation = true;
+	def.internalValue = SECRET_COOKIE;
+	return def;
+});
 
 /// Used to create a chain of line segments. This is designed to eliminate ghost collisions with some limitations.
 /// - chains are one-sided
@@ -611,67 +698,202 @@ typedef struct b2ChainDef
 /// @ingroup shape
 B2_API b2ChainDef b2DefaultChainDef( void );
 
-//! @cond
-/// Profiling data. Times are in milliseconds.
-typedef struct b2Profile
+/**
+ * Profiling data. Times are in milliseconds.
+ */
+export class b2Profile
 {
-	float step;
-	float pairs;
-	float collide;
-	float solve;
-	float prepareStages;
-	float solveConstraints;
-	float prepareConstraints;
-	float integrateVelocities;
-	float warmStart;
-	float solveImpulses;
-	float integratePositions;
-	float relaxImpulses;
-	float applyRestitution;
-	float storeImpulses;
-	float splitIslands;
-	float transforms;
-	float sensorHits;
-	float jointEvents;
-	float hitEvents;
-	float refit;
-	float bullets;
-	float sleepIslands;
-	float sensors;
-} b2Profile;
+	/**
+	 * @type {number}
+	 */
+	step;
 
-/// Counters that give details of the simulation size.
-typedef struct b2Counters
-{
-	int bodyCount;
-	int shapeCount;
-	int contactCount;
-	int jointCount;
-	int islandCount;
-	int stackUsed;
-	int staticTreeHeight;
-	int treeHeight;
-	int byteCount;
-	int taskCount;
-	int colorCounts[24];
-} b2Counters;
-//! @endcond
+	/**
+	 * @type {number}
+	 */
+	pairs;
 
-/// Joint type enumeration
-///
-/// This is useful because all joint types use b2JointId and sometimes you
-/// want to get the type of a joint.
-/// @ingroup joint
-typedef enum b2JointType
+	/**
+	 * @type {number}
+	 */
+	collide;
+
+	/**
+	 * @type {number}
+	 */
+	solve;
+
+	/**
+	 * @type {number}
+	 */
+	prepareStages;
+
+	/**
+	 * @type {number}
+	 */
+	solveConstraints;
+
+	/**
+	 * @type {number}
+	 */
+	prepareConstraints;
+
+	/**
+	 * @type {number}
+	 */
+	integrateVelocities;
+
+	/**
+	 * @type {number}
+	 */
+	warmStart;
+
+	/**
+	 * @type {number}
+	 */
+	solveImpulses;
+
+	/**
+	 * @type {number}
+	 */
+	integratePositions;
+
+	/**
+	 * @type {number}
+	 */
+	relaxImpulses;
+
+	/**
+	 * @type {number}
+	 */
+	applyRestitution;
+
+	/**
+	 * @type {number}
+	 */
+	storeImpulses;
+
+	/**
+	 * @type {number}
+	 */
+	splitIslands;
+
+	/**
+	 * @type {number}
+	 */
+	transforms;
+
+	/**
+	 * @type {number}
+	 */
+	sensorHits;
+
+	/**
+	 * @type {number}
+	 */
+	jointEvents;
+
+	/**
+	 * @type {number}
+	 */
+	hitEvents;
+
+	/**
+	 * @type {number}
+	 */
+	refit;
+
+	/**
+	 * @type {number}
+	 */
+	bullets;
+
+	/**
+	 * @type {number}
+	 */
+	sleepIslands;
+
+	/**
+	 * @type {number}
+	 */
+	sensors;
+
+}
+
+/**
+ * Counters that give details of the simulation size.
+ */
+export class b2Counters
 {
-	b2_distanceJoint,
-	b2_filterJoint,
-	b2_motorJoint,
-	b2_prismaticJoint,
-	b2_revoluteJoint,
-	b2_weldJoint,
-	b2_wheelJoint,
-} b2JointType;
+	/**
+	 * @type {number}
+	 */
+	bodyCount;
+	
+	/**
+	 * @type {number}
+	 */
+	shapeCount;
+	
+	/**
+	 * @type {number}
+	 */
+	contactCount;
+	
+	/**
+	 * @type {number}
+	 */
+	jointCount;
+	
+	/**
+	 * @type {number}
+	 */
+	islandCount;
+	
+	/**
+	 * @type {number}
+	 */
+	stackUsed;
+	
+	/**
+	 * @type {number}
+	 */
+	staticTreeHeight;
+	
+	/**
+	 * @type {number}
+	 */
+	treeHeight;
+	
+	/**
+	 * @type {number}
+	 */
+	byteCount;
+	
+	/**
+	 * @type {number}
+	 */
+	taskCount;
+	
+	/**
+	 * @type {number[]}
+	 */
+	colorCounts;
+}
+
+/**
+ * This is useful because all joint types use b2JointId and sometimes you
+ * want to get the type of a joint.
+ */
+export const b2JointType = {
+	b2_distanceJoint: 0,
+	b2_filterJoint: 1,
+	b2_motorJoint: 2,
+	b2_prismaticJoint: 3,
+	b2_revoluteJoint: 4,
+	b2_weldJoint: 5,
+	b2_wheelJoint: 6,
+};
 
 /// Base joint definition used by all joint types.
 /// The local frames are measured from the body's origin rather than the center of mass because:
