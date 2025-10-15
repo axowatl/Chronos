@@ -2,7 +2,7 @@
  * @readonly Set using SetLengthUnitsPerMeter(value)
  */
 export let lengthUnitsPerMeter = 1; // "Private" backing variable
-export const B2_SECRET_COOKIE = 1152023;
+export const SECRET_COOKIE = 1152023;
 
 /**
  * Sets lengthUnitsPerMeter

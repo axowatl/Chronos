@@ -1,6 +1,6 @@
-import { B2_SECRET_COOKIE } from "./core";
+import { SECRET_COOKIE, lengthUnitsPerMeter } from "./core";
 import { ShapeId } from "./id";
-import { Vec2 } from "./math_functions";
+import { Rot, Rot_identity, Vec2 } from "./math_functions";
 
 export const B2_DEFAULT_CATEGORY_BITS = 1;
 export const B2_DEFAULT_MASK_BITS = UINT64_MAX;
@@ -80,203 +80,315 @@ export class b2RayResult
  * World definition used to create a simulation world.
  * Must be initialized using b2DefaultWorldDef().
  */
-export class b2WorldDef
-{
-	/// Gravity vector. Box2D has no up-vector defined.
-	b2Vec2 gravity;
-
-	/// Restitution speed threshold, usually in m/s. Collisions above this
-	/// speed have restitution applied (will bounce).
-	float restitutionThreshold;
-
-	/// Threshold speed for hit events. Usually meters per second.
-	float hitEventThreshold;
-
-	/// Contact stiffness. Cycles per second. Increasing this increases the speed of overlap recovery, but can introduce jitter.
-	float contactHertz;
-
-	/// Contact bounciness. Non-dimensional. You can speed up overlap recovery by decreasing this with
-	/// the trade-off that overlap resolution becomes more energetic.
-	float contactDampingRatio;
-
-	/// This parameter controls how fast overlap is resolved and usually has units of meters per second. This only
-	/// puts a cap on the resolution speed. The resolution speed is increased by increasing the hertz and/or
-	/// decreasing the damping ratio.
-	float contactSpeed;
-
-	/// Maximum linear speed. Usually meters per second.
-	float maximumLinearSpeed;
-
-	/// Optional mixing callback for friction. The default uses sqrt(frictionA * frictionB).
-	b2FrictionCallback* frictionCallback;
-
-	/// Optional mixing callback for restitution. The default uses max(restitutionA, restitutionB).
-	b2RestitutionCallback* restitutionCallback;
-
-	/// Can bodies go to sleep to improve performance
-	bool enableSleep;
-
-	/// Enable continuous collision
-	bool enableContinuous;
-
-	/// Contact softening when mass ratios are large. Experimental.
-	bool enableContactSoftening;
-
-	/// Number of workers to use with the provided task system. Box2D performs best when using only
-	/// performance cores and accessing a single L2 cache. Efficiency cores and hyper-threading provide
-	/// little benefit and may even harm performance.
-	/// @note Box2D does not create threads. This is the number of threads your applications has created
-	/// that you are allocating to b2World_Step.
-	/// @warning Do not modify the default value unless you are also providing a task system and providing
-	/// task callbacks (enqueueTask and finishTask).
-	int workerCount;
-
-	/// Function to spawn tasks
-	b2EnqueueTaskCallback* enqueueTask;
-
-	/// Function to finish a task
-	b2FinishTaskCallback* finishTask;
-
-	/// User context that is provided to enqueueTask and finishTask
-	void* userTaskContext;
-
-	/// User data
-	void* userData;
-
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-	constructor(gravity, restitutionThreshold, hitEventThreshold, contactHertz, contactDampingRatio, contactSpeed, maximumLinearSpeed, frictionCallback, restitutionCallback, enableSleep, enableContinuous, enableContactSoftening, workerCount, enqueueTask, finishTask, userTaskContext, userdata, internalValue) {
-		
-	}
+export class b2WorldDef {
+    /**
+	 * Gravity vector. Chronos has no up-vector defined.
+	 * @type {Vec2}
+	 */
+    gravity = new Vec2();
+	/**
+	 * Restitution speed threshold, usually in m/s. Collisions above this
+	 * speed have restitution applied (will bounce).
+	 * @type {number}
+	 */
+    restitutionThreshold = 0.0;
+	/**
+	 * Threshold speed for hit events. Usually meters per second.
+	 * @type {number}
+	 */
+    hitEventThreshold = 0.0;
+	/**
+	 * Contact stiffness. Cycles per second. Increasing this increases the speed of overlap recovery, but can introduce jitter.
+	 * @type {number}
+	 */
+    contactHertz = 0.0;
+	/**
+	 * Contact bounciness. Non-dimensional. You can speed up overlap recovery by decreasing this with
+	 * the trade-off that overlap resolution becomes more energetic.
+	 * @type {number}
+	 */
+    contactDampingRatio = 0.0;
+	/**
+	 * This parameter controls how fast overlap is resolved and usually has units of meters per second. This only
+	 * puts a cap on the resolution speed. The resolution speed is increased by increasing the hertz and/or
+	 * decreasing the damping ratio.
+	 * @type {number}
+	 */
+    contactSpeed = 0.0;
+	/**
+	 * Maximum linear speed. Usually meters per second.
+	 * @type {number}
+	 */
+    maximumLinearSpeed = 0.0;
+	/**
+	 * Optional mixing callback for friction. The default uses sqrt(frictionA * frictionB).
+	 * @type {b2FrictionCallback}
+	 */
+    frictionCallback = null;
+	/**
+	 * Optional mixing callback for restitution. The default uses max(restitutionA, restitutionB).
+	 * @type {b2RestitutionCallback}
+	 */
+    restitutionCallback = null;
+	/**
+	 * Can bodies go to sleep to improve performance
+	 * @type {boolean}
+	 */
+    enableSleep = false;
+	/**
+	 * Enable continuous collision
+	 * @type {boolean}
+	 */
+    enableContinuous = false;
+	/**
+	 * Contact softening when mass ratios are large. Experimental.
+	 * @type {boolean}
+	 */
+    enableContactSoftening = false;
+	/**
+	 * Number of workers to use with the provided task system. Chronos performs best when using only
+	 * performance cores and accessing a single L2 cache. Efficiency cores and hyper-threading provide
+	 * little benefit and may even harm performance.
+	 * @note Chronos does not create threads. This is the number of threads your applications has created
+	 * that you are allocating to b2World_Step.
+	 * @warning Do not modify the default value unless you are also providing a task system and providing
+	 * task callbacks (enqueueTask and finishTask).
+	 * @type {number}
+	 */
+    workerCount = 0;
+	/**
+	 * Function to spawn tasks
+	 * @type {b2EnqueueTaskCallback}
+	 */
+    enqueueTask = null;
+	/**
+	 * Function to finish a task
+	 * @type {b2FinishTaskCallback}
+	 */
+    finishTask = null;
+	/**
+	 * User context that is provided to enqueueTask and finishTask
+	 * @type {any}
+	 */
+    userTaskContext = null;
+	/**
+	 * User data
+	 * @type {any}
+	 */
+    userData = null;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+    internalValue = 0;
 }
 
-/// Use this to initialize your world definition
-export const b2DefaultWorldDef = new b2WorldDef
-(
-	gravity.x = 0;
-	gravity.y = -10;
-	hitEventThreshold = 1 * b2_lengthUnitsPerMeter;
-	restitutionThreshold = 1 * b2_lengthUnitsPerMeter;
-	contactSpeed = 3 * b2_lengthUnitsPerMeter;
-	contactHertz = 30.0;
-	contactDampingRatio = 10;
+export const b2DefaultWorldDef = (() => {
+    const def = new b2WorldDef();
 
-	maximumLinearSpeed = 400 * b2_lengthUnitsPerMeter;
-	enableSleep = true;
-	enableContinuous = true;
-	internalValue = B2_SECRET_COOKIE;
-);
+    def.gravity.x = 0;
+    def.gravity.y = -10;
+    def.hitEventThreshold = 1 * lengthUnitsPerMeter;
+    def.restitutionThreshold = 1 * lengthUnitsPerMeter;
+    def.contactSpeed = 3 * lengthUnitsPerMeter;
+    def.contactHertz = 30.0;
+    def.contactDampingRatio = 10;
+    def.maximumLinearSpeed = 400 * lengthUnitsPerMeter;
+    def.enableSleep = true;
+    def.enableContinuous = true;
+    def.internalValue = SECRET_COOKIE;
 
-/// The body simulation type.
-/// Each body is one of these three types. The type determines how the body behaves in the simulation.
-/// @ingroup body
-typedef enum b2BodyType
+    return def;
+})();
+
+/**
+ * The body simulation type.
+ * Each body is one of these three types. The type determines how the body behaves in the simulation.
+ */
+export const b2BodyType = {
+	/**
+	 * zero mass, zero velocity, may be manually moved
+	 */
+	b2_staticBody: 0,
+
+	/**
+	 * zero mass, velocity set by user, moved by solver
+	 */
+	b2_kinematicBody: 1,
+
+	/**
+	 * positive mass, velocity determined by forces, moved by solver
+	 */
+	b2_dynamicBody: 2,
+};
+
+/**
+ * Motion locks to restrict the body movement
+ */
+export class b2MotionLocks
 {
-	/// zero mass, zero velocity, may be manually moved
-	b2_staticBody = 0,
+	/**
+	 * Prevent translation along the x-axis
+	 */
+	linearX = false;
 
-	/// zero mass, velocity set by user, moved by solver
-	b2_kinematicBody = 1,
+	/**
+	 * Prevent translation along the y-axis
+	 */
+	linearY = false;
 
-	/// positive mass, velocity determined by forces, moved by solver
-	b2_dynamicBody = 2,
+	/**
+	 * Prevent rotation around the z-axis
+	 */
+	angularZ = false;
+}
 
-	/// number of body types
-	b2_bodyTypeCount,
-} b2BodyType;
-
-/// Motion locks to restrict the body movement
-typedef struct b2MotionLocks
+/**
+ * A body definition holds all the data needed to construct a rigid body.
+ * You can safely re-use body definitions. Shapes are added to a body after construction.
+ * Body definitions are temporary objects used to bundle creation parameters.
+ * Must be initialized using b2DefaultBodyDef().
+ */
+export class b2BodyDef
 {
-	/// Prevent translation along the x-axis
-	bool linearX;
+	/**
+	 * The body type: static, kinematic, or dynamic.
+	 * @type {b2BodyType}
+	 */
+	type;
 
-	/// Prevent translation along the y-axis
-	bool linearY;
+	/**
+	 * The initial world position of the body. Bodies should be created with the desired position.
+	 * @note Creating bodies at the origin and then moving them nearly doubles the cost of body creation, especially
+	 * if the body is moved after shapes have been added.
+	 * @type {Vec2}
+	 */
+	position;
 
-	/// Prevent rotation around the z-axis
-	bool angularZ;
-} b2MotionLocks;
+	/**
+	 * The initial world rotation of the body. Use b2MakeRot() if you have an angle.
+	 * @type {Rot}
+	 */
+	rotation;
 
-/// A body definition holds all the data needed to construct a rigid body.
-/// You can safely re-use body definitions. Shapes are added to a body after construction.
-/// Body definitions are temporary objects used to bundle creation parameters.
-/// Must be initialized using b2DefaultBodyDef().
-/// @ingroup body
-typedef struct b2BodyDef
-{
-	/// The body type: static, kinematic, or dynamic.
-	b2BodyType type;
+	/**
+	 * The initial linear velocity of the body's origin. Usually in meters per second.
+	 * @type {Vec2}
+	 */
+	linearVelocity;
 
-	/// The initial world position of the body. Bodies should be created with the desired position.
-	/// @note Creating bodies at the origin and then moving them nearly doubles the cost of body creation, especially
-	/// if the body is moved after shapes have been added.
-	b2Vec2 position;
+	/**
+	 * The initial angular velocity of the body. Radians per second.
+	 * @type {number}
+	 */
+	angularVelocity;
 
-	/// The initial world rotation of the body. Use b2MakeRot() if you have an angle.
-	b2Rot rotation;
+	/**
+	 * Linear damping is used to reduce the linear velocity. The damping parameter
+	 * can be larger than 1 but the damping effect becomes sensitive to the
+	 * time step when the damping parameter is large.
+	 * Generally linear damping is undesirable because it makes objects move slowly
+	 * as if they are floating.
+	 * @type {number}
+	 */
+	linearDamping;
 
-	/// The initial linear velocity of the body's origin. Usually in meters per second.
-	b2Vec2 linearVelocity;
+	/**
+	 * Angular damping is used to reduce the angular velocity. The damping parameter
+	 * can be larger than 1.0f but the damping effect becomes sensitive to the
+	 * time step when the damping parameter is large.
+	 * Angular damping can be use slow down rotating bodies.
+	 * @type {number}
+	 */
+	angularDamping;
 
-	/// The initial angular velocity of the body. Radians per second.
-	float angularVelocity;
+	/**
+	 * Scale the gravity applied to this body. Non-dimensional.
+	 * @type {number}
+	 */
+	gravityScale;
 
-	/// Linear damping is used to reduce the linear velocity. The damping parameter
-	/// can be larger than 1 but the damping effect becomes sensitive to the
-	/// time step when the damping parameter is large.
-	/// Generally linear damping is undesirable because it makes objects move slowly
-	/// as if they are floating.
-	float linearDamping;
+	/**
+	 * Sleep speed threshold, default is 0.05 meters per second
+	 * @type {number}
+	 */
+	sleepThreshold;
 
-	/// Angular damping is used to reduce the angular velocity. The damping parameter
-	/// can be larger than 1.0f but the damping effect becomes sensitive to the
-	/// time step when the damping parameter is large.
-	/// Angular damping can be use slow down rotating bodies.
-	float angularDamping;
+	/**
+	 * Optional body name for debugging. Up to 31 characters (excluding null termination)
+	 * @type {string}
+	 */
+	name;
 
-	/// Scale the gravity applied to this body. Non-dimensional.
-	float gravityScale;
+	/**
+	 * Use this to store application specific body data.
+	 * @type {any}
+	 */
+	userData;
 
-	/// Sleep speed threshold, default is 0.05 meters per second
-	float sleepThreshold;
+	/**
+	 * Motions locks to restrict linear and angular movement.
+	 * Caution: may lead to softer constraints along the locked direction
+	 * @type {b2MotionLocks}
+	 */
+	motionLocks;
 
-	/// Optional body name for debugging. Up to 31 characters (excluding null termination)
-	const char* name;
+	/**
+	 * Set this flag to false if this body should never fall asleep.
+	 * @type {boolean}
+	 */
+	enableSleep;
 
-	/// Use this to store application specific body data.
-	void* userData;
+	/**
+	 * Is this body initially awake or sleeping?
+	 * @type {boolean}
+	 */
+	isAwake;
 
-	/// Motions locks to restrict linear and angular movement.
-	/// Caution: may lead to softer constraints along the locked direction
-	b2MotionLocks motionLocks;
+	/**
+	 * Treat this body as high speed object that performs continuous collision detection
+	 * against dynamic and kinematic bodies, but not other bullet bodies.
+	 * @warning Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic
+	 * continuous collision.
+	 * @type {boolean}
+	 */
+	isBullet;
 
-	/// Set this flag to false if this body should never fall asleep.
-	bool enableSleep;
+	/**
+	 * Used to disable a body. A disabled body does not move or collide.
+	 * @type {boolean}
+	 */
+	isEnabled;
 
-	/// Is this body initially awake or sleeping?
-	bool isAwake;
+	/**
+	 * This allows this body to bypass rotational speed limits. Should only be used
+	 * for circular objects, like wheels.
+	 * @type {boolean}
+	 */
+	allowFastRotation;
 
-	/// Treat this body as high speed object that performs continuous collision detection
-	/// against dynamic and kinematic bodies, but not other bullet bodies.
-	/// @warning Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic
-	/// continuous collision.
-	bool isBullet;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-	/// Used to disable a body. A disabled body does not move or collide.
-	bool isEnabled;
-
-	/// This allows this body to bypass rotational speed limits. Should only be used
-	/// for circular objects, like wheels.
-	bool allowFastRotation;
-
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2BodyDef;
-
-/// Use this to initialize your body definition
-/// @ingroup body
-B2_API b2BodyDef b2DefaultBodyDef( void );
+/**
+ * Use this to initialize your body definition
+ */
+export const b2DefaultBodyDef = (() => {
+	const def = new b2BodyDef
+	def.type = b2BodyType.b2_staticBody;
+	def.rotation = Rot_identity;
+	def.sleepThreshold = 0.05 * lengthUnitsPerMeter;
+	def.gravityScale = 1;
+	def.enableSleep = true;
+	def.isAwake = true;
+	def.isEnabled = true;
+	def.internalValue = SECRET_COOKIE;
+	return def;
+});
 
 /// This is used to filter collision on shapes. It affects shape-vs-shape collision
 /// and shape-versus-query collision (such as b2World_CastRay).
