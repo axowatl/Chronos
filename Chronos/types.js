@@ -991,179 +991,291 @@ export class b2JointDef
 	 * Constraint damping ratio (advanced feature)
 	 * @type {number}
 	 */
-	float constraintDampingRatio;
+	constraintDampingRatio;
 
-	/// Debug draw scale
-	float drawScale;
+	/**
+	 * Debug draw scale
+	 * @type {number}
+	 */
+	drawScale;
 
-	/// Set this flag to true if the attached bodies should collide
-	bool collideConnected;
-
+	/**
+	 * Set this flag to true if the attached bodies should collide
+	 * @type {boolean}
+	 */
+	collideConnected;
 }
 
-/// Distance joint definition
-/// Connects a point on body A with a point on body B by a segment.
-/// Useful for ropes and springs.
-/// @ingroup distance_joint
-typedef struct b2DistanceJointDef
+/**
+ * Distance joint definition
+ * Connects a point on body A with a point on body B by a segment.
+ * Useful for ropes and springs.
+ */
+export class b2DistanceJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// The rest length of this joint. Clamped to a stable minimum value.
-	float length;
+	/**
+	 * The rest length of this joint. Clamped to a stable minimum value.
+	 * @type {number}
+	 */
+	length;
 
-	/// Enable the distance constraint to behave like a spring. If false
-	/// then the distance joint will be rigid, overriding the limit and motor.
-	bool enableSpring;
+	/**
+	 * Enable the distance constraint to behave like a spring. If false
+	 * then the distance joint will be rigid, overriding the limit and motor.
+	 * @type {boolean}
+	 */
+	enableSpring;
 
-	/// The lower spring force controls how much tension it can sustain
-	float lowerSpringForce;
+	/**
+	 * The lower spring force controls how much tension it can sustain
+	 * @type {number}
+	 */
+	lowerSpringForce;
 
-	/// The upper spring force controls how much compression it an sustain
-	float upperSpringForce;
+	/**
+	 * The upper spring force controls how much compression it an sustain
+	 * @type {number}
+	 */
+	upperSpringForce;
 
-	/// The spring linear stiffness Hertz, cycles per second
-	float hertz;
+	/**
+	 * The spring linear stiffness Hertz, cycles per second
+	 * @type {number}
+	 */
+	hertz;
 
-	/// The spring linear damping ratio, non-dimensional
-	float dampingRatio;
+	/**
+	 * The spring linear damping ratio, non-dimensional
+	 * @type {number}
+	 */
+	dampingRatio;
 
-	/// Enable/disable the joint limit
-	bool enableLimit;
+	/**
+	 * Enable/disable the joint limit
+	 * @type {boolean}
+	 */
+	enableLimit;
 
-	/// Minimum length. Clamped to a stable minimum value.
-	float minLength;
+	/**
+	 * Minimum length. Clamped to a stable minimum value.
+	 * @type {number}
+	 */
+	minLength;
 
-	/// Maximum length. Must be greater than or equal to the minimum length.
-	float maxLength;
+	/**
+	 * Maximum length. Must be greater than or equal to the minimum length.
+	 * @type {number}
+	 */
+	maxLength;
 
-	/// Enable/disable the joint motor
-	bool enableMotor;
+	/**
+	 * Enable/disable the joint motor
+	 * @type {boolean}
+	 */
+	enableMotor;
 
-	/// The maximum motor force, usually in newtons
-	float maxMotorForce;
+	/**
+	 * The maximum motor force, usually in newtons
+	 * @type {number}
+	 */
+	maxMotorForce;
 
-	/// The desired motor speed, usually in meters per second
-	float motorSpeed;
+	/**
+	 * The desired motor speed, usually in meters per second
+	 * @type {number}
+	 */
+	motorSpeed;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2DistanceJointDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your joint definition
-/// @ingroup distance_joint
-B2_API b2DistanceJointDef b2DefaultDistanceJointDef( void );
-
-/// A motor joint is used to control the relative velocity and or transform between two bodies.
-/// With a velocity of zero this acts like top-down friction.
-/// @ingroup motor_joint
-typedef struct b2MotorJointDef
+/**
+ * A motor joint is used to control the relative velocity and or transform between two bodies.
+ * With a velocity of zero this acts like top-down friction.
+ */
+export class b2MotorJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// The desired linear velocity
-	b2Vec2 linearVelocity;
+	/**
+	 * The desired linear velocity
+	 * @type {Vec2}
+	 */
+	linearVelocity;
 
-	/// The maximum motor force in newtons
-	float maxVelocityForce;
+	/**
+	 * The maximum motor force in newtons
+	 * @type {number}
+	 */
+	maxVelocityForce;
 
-	/// The desired angular velocity
-	float angularVelocity;
+	/**
+	 * The desired angular velocity
+	 * @type {number}
+	 */
+	angularVelocity;
 
-	/// The maximum motor torque in newton-meters
-	float maxVelocityTorque;
+	/**
+	 * The maximum motor torque in newton-meters
+	 * @type {number}
+	 */
+	maxVelocityTorque;
 
-	/// Linear spring hertz for position control
-	float linearHertz;
+	/**
+	 * Linear spring hertz for position control
+	 * @type {number}
+	 */
+	linearHertz;
 
-	/// Linear spring damping ratio
-	float linearDampingRatio;
+	/**
+	 * Linear spring damping ratio
+	 * @type {number}
+	 */
+	linearDampingRatio;
 
-	/// Maximum spring force in newtons
-	float maxSpringForce;
+	/**
+	 * Maximum spring force in newtons
+	 * @type {number}
+	 */
+	maxSpringForce;
 
-	/// Angular spring hertz for position control
-	float angularHertz;
+	/**
+	 * Angular spring hertz for position control
+	 * @type {number}
+	 */
+	angularHertz;
 
-	/// Angular spring damping ratio
-	float angularDampingRatio;
+	/**
+	 * Angular spring damping ratio
+	 * @type {number}
+	 */
+	angularDampingRatio;
 
-	/// Maximum spring torque in newton-meters
-	float maxSpringTorque;
+	/**
+	 * Maximum spring torque in newton-meters
+	 * @type {number}
+	 */
+	maxSpringTorque;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2MotorJointDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your joint definition
-/// @ingroup motor_joint
-B2_API b2MotorJointDef b2DefaultMotorJointDef( void );
-
-/// A filter joint is used to disable collision between two specific bodies.
-///
-/// @ingroup filter_joint
-typedef struct b2FilterJointDef
+/**
+ * A filter joint is used to disable collision between two specific bodies.
+ */
+export class b2FilterJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2FilterJointDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your joint definition
-/// @ingroup filter_joint
-B2_API b2FilterJointDef b2DefaultFilterJointDef( void );
-
-/// Prismatic joint definition
-/// Body B may slide along the x-axis in local frame A. Body B cannot rotate relative to body A.
-/// The joint translation is zero when the local frame origins coincide in world space.
-/// @ingroup prismatic_joint
-typedef struct b2PrismaticJointDef
+/**
+ * Prismatic joint definition
+ * Body B may slide along the x-axis in local frame A. Body B cannot rotate relative to body A.
+ * The joint translation is zero when the local frame origins coincide in world space.
+ */
+export class b2PrismaticJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// Enable a linear spring along the prismatic joint axis
-	bool enableSpring;
+	/**
+	 * Enable a linear spring along the prismatic joint axis
+	 * @type {boolean}
+	 */
+	enableSpring;
 
-	/// The spring stiffness Hertz, cycles per second
-	float hertz;
+	/**
+	 * The spring stiffness Hertz, cycles per second
+	 * @type {number}
+	 */
+	hertz;
 
-	/// The spring damping ratio, non-dimensional
-	float dampingRatio;
+	/**
+	 * The spring damping ratio, non-dimensional
+	 * @type {number}
+	 */
+	dampingRatio;
 
-	/// The target translation for the joint in meters. The spring-damper will drive
-	/// to this translation.
-	float targetTranslation;
+	/**
+	 * The target translation for the joint in meters. The spring-damper will drive
+	 * to this translation.
+	 * @type {number}
+	 */
+	targetTranslation;
 
-	/// Enable/disable the joint limit
-	bool enableLimit;
+	/**
+	 * Enable/disable the joint limit
+	 * @type {boolean}
+	 */
+	enableLimit;
 
-	/// The lower translation limit
-	float lowerTranslation;
+	/**
+	 * The lower translation limit
+	 * @type {number}
+	 */
+	lowerTranslation;
 
-	/// The upper translation limit
-	float upperTranslation;
+	/**
+	 * The upper translation limit
+	 * @type {number}
+	 */
+	upperTranslation;
 
-	/// Enable/disable the joint motor
-	bool enableMotor;
+	/**
+	 * Enable/disable the joint motor
+	 * @type {boolean}
+	 */
+	enableMotor;
 
-	/// The maximum motor force, typically in newtons
-	float maxMotorForce;
+	/**
+	 * The maximum motor force, typically in newtons
+	 * @type {number}
+	 */
+	maxMotorForce;
 
-	/// The desired motor speed, typically in meters per second
-	float motorSpeed;
+	/**
+	 * The desired motor speed, typically in meters per second
+	 * @type {number}
+	 */
+	motorSpeed;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2PrismaticJointDef;
-
-/// Use this to initialize your joint definition
-/// @ingroupd prismatic_joint
-B2_API b2PrismaticJointDef b2DefaultPrismaticJointDef( void );
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
 /// Revolute joint definition
 /// A point on body B is fixed to a point on body A. Allows relative rotation.
