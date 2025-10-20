@@ -1,6 +1,6 @@
 import { SECRET_COOKIE, lengthUnitsPerMeter } from "./core";
-import { ShapeId } from "./id";
-import { Rot, Rot_identity, Vec2 } from "./math_functions";
+import { BodyId, ShapeId } from "./id";
+import { Rot, Rot_identity, Transform, Vec2 } from "./math_functions";
 
 export const B2_DEFAULT_CATEGORY_BITS = 1;
 export const B2_DEFAULT_MASK_BITS = Number.MAX_SAFE_INTEGER;
@@ -648,55 +648,91 @@ export const b2DefaultShapeDef = (() => {
 	return def;
 });
 
-/// Used to create a chain of line segments. This is designed to eliminate ghost collisions with some limitations.
-/// - chains are one-sided
-/// - chains have no mass and should be used on static bodies
-/// - chains have a counter-clockwise winding order (normal points right of segment direction)
-/// - chains are either a loop or open
-/// - a chain must have at least 4 points
-/// - the distance between any two points must be greater than B2_LINEAR_SLOP
-/// - a chain shape should not self intersect (this is not validated)
-/// - an open chain shape has NO COLLISION on the first and final edge
-/// - you may overlap two open chains on their first three and/or last three points to get smooth collision
-/// - a chain shape creates multiple line segment shapes on the body
-/// https://en.wikipedia.org/wiki/Polygonal_chain
-/// Must be initialized using b2DefaultChainDef().
-/// @warning Do not use chain shapes unless you understand the limitations. This is an advanced feature.
-/// @ingroup shape
-typedef struct b2ChainDef
+/**
+ * Used to create a chain of line segments. This is designed to eliminate ghost collisions with some limitations.
+ * - chains are one-sided
+ * - chains have no mass and should be used on static bodies
+ * - chains have a counter-clockwise winding order (normal points right of segment direction)
+ * - chains are either a loop or open
+ * - a chain must have at least 4 points
+ * - the distance between any two points must be greater than B2_LINEAR_SLOP
+ * - a chain shape should not self intersect (this is not validated)
+ * - an open chain shape has NO COLLISION on the first and final edge
+ * - you may overlap two open chains on their first three and/or last three points to get smooth collision
+ * - a chain shape creates multiple line segment shapes on the body
+ * https://en.wikipedia.org/wiki/Polygonal_chain
+ * Must be initialized using b2DefaultChainDef().
+ * @warning Do not use chain shapes unless you understand the limitations. This is an advanced feature.
+ */
+export class b2ChainDef
 {
-	/// Use this to store application specific shape data.
-	void* userData;
+	/**
+	 * Use this to store application specific shape data.
+	 * @type {any}
+	 */
+	userData;
 
-	/// An array of at least 4 points. These are cloned and may be temporary.
-	const b2Vec2* points;
+	/**
+	 * An array of at least 4 points. These are cloned and may be temporary.
+	 * @type {Vec2}
+	 */
+	points;
 
-	/// The point count, must be 4 or more.
-	int count;
+	/**
+	 * The point count, must be 4 or more.
+	 * @type {number}
+	 */
+	count;
 
-	/// Surface materials for each segment. These are cloned.
-	const b2SurfaceMaterial* materials;
+	/**
+	 * Surface materials for each segment. These are cloned.
+	 * @type {b2SurfaceMaterial}
+	 */
+	materials;
 
-	/// The material count. Must be 1 or count. This allows you to provide one
-	/// material for all segments or a unique material per segment.
-	int materialCount;
+	/**
+	 * The material count. Must be 1 or count. This allows you to provide one
+	 * material for all segments or a unique material per segment.
+	 * @type {number}
+	 */
+	materialCount;
 
-	/// Contact filtering data.
-	b2Filter filter;
+	/**
+	 * Contact filtering data.
+	 * @type {b2Filter}
+	 */
+	filter;
 
-	/// Indicates a closed chain formed by connecting the first and last points
-	bool isLoop;
+	/**
+	 * Indicates a closed chain formed by connecting the first and last points
+	 * @type {boolean}
+	 */
+	isLoop;
 
-	/// Enable sensors to detect this chain. False by default.
-	bool enableSensorEvents;
+	/**
+	 * Enable sensors to detect this chain. False by default.
+	 * @type {boolean}
+	 */
+	enableSensorEvents;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2ChainDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your chain definition
-/// @ingroup shape
-B2_API b2ChainDef b2DefaultChainDef( void );
+/**
+ * Use this to initialize your chain definition
+ */
+export const b2DefaultChainDef = (() => {
+	const def = new b2ChainDef();
+	def.materials = b2DefaultSurfaceMaterial;
+	def.materialCount = 1;
+	def.filter = b2DefaultFilter();
+	def.internalValue = SECRET_COOKIE;
+	return def;
+});
 
 /**
  * Profiling data. Times are in milliseconds.
@@ -895,37 +931,66 @@ export const b2JointType = {
 	b2_wheelJoint: 6,
 };
 
-/// Base joint definition used by all joint types.
-/// The local frames are measured from the body's origin rather than the center of mass because:
-/// 1. you might not know where the center of mass will be
-/// 2. if you add/remove shapes from a body and recompute the mass, the joints will be broken
-typedef struct b2JointDef
+/**
+ * Base joint definition used by all joint types.
+ * The local frames are measured from the body's origin rather than the center of mass because:
+ * 1. you might not know where the center of mass will be
+ * 2. if you add/remove shapes from a body and recompute the mass, the joints will be broken
+ */
+export class b2JointDef
 {
-	/// User data pointer
-	void* userData;
+	/**
+	 * User data pointer
+	 * @type {any}
+	 */
+	userData;
 
-	/// The first attached body
-	b2BodyId bodyIdA;
+	/**
+	 * The first attached body
+	 * @type {BodyId}
+	 */
+	bodyIdA;
 
-	/// The second attached body
-	b2BodyId bodyIdB;
+	/**
+	 * The second attached body
+	 * @type {BodyId}
+	 */
+	bodyIdB;
 
-	/// The first local joint frame
-	b2Transform localFrameA;
+	/**
+	 * The first local joint frame
+	 * @type {Transform}
+	 */
+	localFrameA;
 
-	/// The second local joint frame
-	b2Transform localFrameB;
+	/**
+	 * The second local joint frame
+	 * @type {Transform}
+	 */
+	localFrameB;
 
-	/// Force threshold for joint events
-	float forceThreshold;
+	/**
+	 * Force threshold for joint events
+	 * @type {number}
+	 */
+	forceThreshold;
 
-	/// Torque threshold for joint events
-	float torqueThreshold;
+	/**
+	 * Torque threshold for joint events
+	 * @type {number}
+	 */
+	torqueThreshold;
 
-	/// Constraint hertz (advanced feature)
-	float constraintHertz;
+	/**
+	 * Constraint hertz (advanced feature)
+	 * @type {number}
+	 */
+	constraintHertz;
 
-	/// Constraint damping ratio (advanced feature)
+	/**
+	 * Constraint damping ratio (advanced feature)
+	 * @type {number}
+	 */
 	float constraintDampingRatio;
 
 	/// Debug draw scale
@@ -934,7 +999,7 @@ typedef struct b2JointDef
 	/// Set this flag to true if the attached bodies should collide
 	bool collideConnected;
 
-} b2JointDef;
+}
 
 /// Distance joint definition
 /// Connects a point on body A with a point on body B by a segment.
