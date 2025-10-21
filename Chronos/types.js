@@ -1277,97 +1277,155 @@ export class b2PrismaticJointDef
 	internalValue;
 }
 
-/// Revolute joint definition
-/// A point on body B is fixed to a point on body A. Allows relative rotation.
-/// @ingroup revolute_joint
-typedef struct b2RevoluteJointDef
+/**
+ * Revolute joint definition
+ * A point on body B is fixed to a point on body A. Allows relative rotation.
+ */
+export class b2RevoluteJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// The target angle for the joint in radians. The spring-damper will drive
-	/// to this angle.
-	float targetAngle;
+	/**
+	 * The target angle for the joint in radians. The spring-damper will drive
+	 * to this angle.
+	 * @type {number}
+	 */
+	targetAngle;
 
-	/// Enable a rotational spring on the revolute hinge axis
-	bool enableSpring;
+	/**
+	 * Enable a rotational spring on the revolute hinge axis
+	 * @type {boolean}
+	 */
+	enableSpring;
 
-	/// The spring stiffness Hertz, cycles per second
-	float hertz;
+	/**
+	 * The spring stiffness Hertz, cycles per second
+	 * @type {number}
+	 */
+	hertz;
 
-	/// The spring damping ratio, non-dimensional
-	float dampingRatio;
+	/**
+	 * The spring damping ratio, non-dimensional
+	 * @type {number}
+	 */
+	dampingRatio;
 
-	/// A flag to enable joint limits
-	bool enableLimit;
+	/**
+	 * A flag to enable joint limits
+	 * @type {boolean}
+	 */
+	enableLimit;
 
-	/// The lower angle for the joint limit in radians. Minimum of -0.99*pi radians.
-	float lowerAngle;
+	/**
+	 * The lower angle for the joint limit in radians. Minimum of -0.99*pi radians.
+	 * @type {number}
+	 */
+	lowerAngle;
 
-	/// The upper angle for the joint limit in radians. Maximum of 0.99*pi radians.
-	float upperAngle;
+	/**
+	 * The upper angle for the joint limit in radians. Maximum of 0.99*pi radians.
+	 * @type {number}
+	 */
+	upperAngle;
 
-	/// A flag to enable the joint motor
-	bool enableMotor;
+	/**
+	 * A flag to enable the joint motor
+	 * @type {boolean}
+	 */
+	enableMotor;
 
-	/// The maximum motor torque, typically in newton-meters
-	float maxMotorTorque;
+	/**
+	 * The maximum motor torque, typically in newton-meters
+	 * @type {number}
+	 */
+	maxMotorTorque;
 
-	/// The desired motor speed in radians per second
-	float motorSpeed;
+	/**
+	 * The desired motor speed in radians per second
+	 * @type {number}
+	 */
+	motorSpeed;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2RevoluteJointDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your joint definition.
-/// @ingroup revolute_joint
-B2_API b2RevoluteJointDef b2DefaultRevoluteJointDef( void );
-
-/// Weld joint definition
-/// Connects two bodies together rigidly. This constraint provides springs to mimic
-/// soft-body simulation.
-/// @note The approximate solver in Box2D cannot hold many bodies together rigidly
-/// @ingroup weld_joint
-typedef struct b2WeldJointDef
+/**
+ * Weld joint definition
+ * Connects two bodies together rigidly. This constraint provides springs to mimic
+ * soft-body simulation.
+ * @note The approximate solver in Box2D cannot hold many bodies together rigidly
+ */
+export class b2WeldJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2BodyDef}
+	 */
+	base;
 
-	/// Linear stiffness expressed as Hertz (cycles per second). Use zero for maximum stiffness.
-	float linearHertz;
+	/**
+	 * Linear stiffness expressed as Hertz (cycles per second). Use zero for maximum stiffness.
+	 * @type {number}
+	 */
+	linearHertz;
 
-	/// Angular stiffness as Hertz (cycles per second). Use zero for maximum stiffness.
-	float angularHertz;
+	/**
+	 * Angular stiffness as Hertz (cycles per second). Use zero for maximum stiffness.
+	 * @type {number}
+	 */
+	angularHertz;
 
-	/// Linear damping ratio, non-dimensional. Use 1 for critical damping.
-	float linearDampingRatio;
+	/**
+	 * Linear damping ratio, non-dimensional. Use 1 for critical damping.
+	 * @type {number}
+	 */
+	linearDampingRatio;
 
-	/// Linear damping ratio, non-dimensional. Use 1 for critical damping.
-	float angularDampingRatio;
+	/**
+	 * Linear damping ratio, non-dimensional. Use 1 for critical damping.
+	 * @type {number}
+	 */
+	angularDampingRatio;
 
-	/// Used internally to detect a valid definition. DO NOT SET.
-	int internalValue;
-} b2WeldJointDef;
+	/**
+	 * Used internally to detect a valid definition. DO NOT SET.
+	 * @type {number}
+	 */
+	internalValue;
+}
 
-/// Use this to initialize your joint definition
-/// @ingroup weld_joint
-B2_API b2WeldJointDef b2DefaultWeldJointDef( void );
-
-/// Wheel joint definition
-/// Body B is a wheel that may rotate freely and slide along the local x-axis in frame A.
-/// The joint translation is zero when the local frame origins coincide in world space.
-/// @ingroup wheel_joint
-typedef struct b2WheelJointDef
+/**
+ * Wheel joint definition
+ * Body B is a wheel that may rotate freely and slide along the local x-axis in frame A.
+ * The joint translation is zero when the local frame origins coincide in world space.
+ */
+export class b2WheelJointDef
 {
-	/// Base joint definition
-	b2JointDef base;
+	/**
+	 * Base joint definition
+	 * @type {b2JointDef}
+	 */
+	base;
 
-	/// Enable a linear spring along the local axis
-	bool enableSpring;
+	/**
+	 * Enable a linear spring along the local axis
+	 * @type {boolean}
+	 */
+	enableSpring;
 
-	/// Spring stiffness in Hertz
-	float hertz;
+	/**
+	 * Spring stiffness in Hertz
+	 * @type {number}
+	 */
+	hertz;
 
 	/// Spring damping ratio, non-dimensional
 	float dampingRatio;
@@ -1392,11 +1450,7 @@ typedef struct b2WheelJointDef
 
 	/// Used internally to detect a valid definition. DO NOT SET.
 	int internalValue;
-} b2WheelJointDef;
-
-/// Use this to initialize your joint definition
-/// @ingroup wheel_joint
-B2_API b2WheelJointDef b2DefaultWheelJointDef( void );
+}
 
 /// The explosion definition is used to configure options for explosions. Explosions
 /// consider shape geometry when computing the impulse.
